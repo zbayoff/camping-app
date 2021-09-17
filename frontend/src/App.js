@@ -1,37 +1,25 @@
-import "./App.css";
+import { Route, BrowserRouter } from 'react-router-dom';
+import './App.css';
+// import Navbar from './components/Navbar';
+import PrivatePage from './components/PrivatePage';
+import PublicPage from './components/PublicPage';
+import PrivateRoute from './components/PrivateRoute'
+import Alerts from './components/Alerts';
+
+import Home from './components/Home'
 
 function App() {
-  return (
-    <div className="App">
-      <h2>My Alerts</h2>
-      <table>
-        <tr>
-          <th>Campground/Permit</th>
-          <th>Check-in Date</th>
-          <th>Check-out Date</th>
-          {/* <th>Reminder Frequency</th> */}
-          {/* <th>Notification System</th> */}
-          <th>Enabled?</th>
-        </tr>
-        <tr>
-          <td>Yosemite Upper Pines</td>
-          <td>09/10/21</td>
-          <td>09/15/21</td>
-          {/* <td>Every day</td> */}
-          {/* <td>Email</td> */}
-          <td>True</td>
-        </tr>
-        <tr>
-        <td>Yosemite Lower Pines</td>
-          <td>10/10/21</td>
-          <td>10/15/21</td>
-          {/* <td>Every week</td> */}
-          {/* <td>Text/Email</td> */}
-          <td>True</td>
-        </tr>
-      </table>
-    </div>
-  );
+	return (
+		<div className="App">
+			<BrowserRouter>
+				<Route exact path="/" component={Home} />
+				<Route exact path="/alerts" component={Alerts} />
+				{/* <Route path="/private" component={PrivatePage} />
+				<Route path="/private" component={PrivatePage} /> */}
+				{/* <PrivateRoute component={Alerts} path="/alerts" exact /> */}
+			</BrowserRouter>
+		</div>
+	);
 }
 
 export default App;

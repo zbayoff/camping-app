@@ -11,9 +11,30 @@ const NotificationSettingSchema = new Schema(
 );
 
 const userSchema = new Schema({
-	name: String,
-	email: String,
-	alertJobId: { type: String, default: '' },
+	googleId: {
+		type: String,
+		required: true,
+	},
+	firstName: {
+		type: String,
+		required: true,
+	},
+	lastName: {
+		type: String,
+		required: true,
+	},
+	picture: {
+		type: String,
+	},
+	email: {
+		type: String,
+		required: true,
+	},
+	createdAt: {
+		type: Date,
+		default: Date.now,
+	},
+	alertJobId: { type: mongoose.Schema.Types.ObjectId },
 	notificationSettings: { type: NotificationSettingSchema },
 });
 

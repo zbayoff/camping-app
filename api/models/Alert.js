@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const alertSchema = new Schema({
-	userId: String,
+	userId: mongoose.Schema.Types.ObjectId,
 	campground: Number,
-	checkinDate: String,
-	checkoutDate: String,
+	checkinDate: Date,
+	checkoutDate: Date,
 	enabled: Boolean,
 });
 

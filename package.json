@@ -5,15 +5,25 @@
   "license": "MIT",
   "dependencies": {
     "agenda": "^4.2.1",
+    "axios": "^0.21.4",
+    "cookie-parser": "^1.4.5",
+    "cookie-session": "^1.4.0",
+    "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "google-auth-library": "^7.9.1",
+    "http-proxy-middleware": "^2.0.1",
+    "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^6.0.5",
-    "nodemon": "^2.0.12"
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.12",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0"
   },
   "scripts": {
     "start": "node app.js",
-    "start-nodemon": "nodemon app.js"
+    "dev": "nodemon app.js"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

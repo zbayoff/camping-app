@@ -1,24 +1,40 @@
 const express = require('express');
-const path = require('path');
+const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
+const cookieSession = require('cookie-session');
+
+// configs
+dotenv.config('./.env');
+require('./config/passport')(passport);
+// mongoose.set('debug', true);
+
+const app = express();
+const port = process.env.PORT || 5000;
 
 const { emailAgenda, recApiAgenda } = require('./api/agenda');
 
-require('dotenv').config();
+app.use(morgan('tiny'));
+app.use(cors({ credentials: true, origin: true }));
 
-const app = express();
-const port = 3000;
-
+app.use(
+	cookieSession({
+		maxAge: 300000, // session cookie age before user must log in again
+		keys: [process.env.COOKIE_SESSION_KEY],
+	})
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const { MONGO_CONNECTION_STRING } = process.env;
-
-// mongoose.set('debug', true);
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose
-	.connect(MONGO_CONNECTION_STRING, {
+	.connect(process.env.MONGO_CONNECTION_STRING, {
 		useNewUrlParser: true,
 	})
 	.then(() => {
@@ -30,12 +46,14 @@ mongoose
 	});
 
 const routes = require('./api/routes/index');
+// const alertRoutes = require('./api/routes/alerts');
+const authRoute = require('./api/routes/auth');
 
 (async function () {
 	// IIFE to give access to async/await
-	await emailAgenda.start();
-	await recApiAgenda.start();
-	await recApiAgenda.every('5 seconds', 'hit Rec Api');
+	// await emailAgenda.start();
+	// await recApiAgenda.start();
+	// await recApiAgenda.every('5 seconds', 'hit Rec Api');
 })();
 
 async function graceful() {
@@ -48,13 +66,8 @@ process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
 
 app.use('/api', routes);
-
-app.use(express.static(path.join(__dirname, 'frontend/build')));
-
-app.all('*', (req, resp, next) => {
-	console.info(`${req.method} ${req.originalUrl}`);
-	next();
-});
+// app.use('/', alertRoutes);
+app.use('/auth', authRoute);
 
 app.listen(port, () => {
 	console.log(`Example app listening at port:${port}`);

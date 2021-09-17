@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
+// require('dotenv').config();  
+
 const { MONGO_CONNECTION_STRING } = process.env;
 const Agenda = require('agenda');
 const moment = require('moment');
@@ -8,6 +10,7 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 
 const { findUser, findAlerts } = require('./helpers/index');
+const { getAvailableCampsites } = require('./helpers/recreationGovApi');
 
 const emailAgenda = new Agenda({
 	db: { address: MONGO_CONNECTION_STRING, collection: 'emailJobs' },
@@ -36,33 +39,43 @@ recApiAgenda.define('hit Rec Api', async (job) => {
 	for (const alert of alerts) {
 		const user = await findUser(alert.userId);
 		console.log(
-			`hit rec api for user: ${user.name} for campground: ${alert.campground} `
-		);
-		const campsites = await new Promise((resolve) =>
-			setTimeout(resolve, 200, [1])
+			`hit rec api for user: ${user.firstName} for campground: ${alert.campground} `
 		);
 
-		// console.log('campsites: ', campsites);
+		if (alert.enabled) {
+			// const campsites = await getAvailableCampsites(
+			// 	alert.campground,
+			// 	alert.checkinDate,
+			// 	alert.checkoutDate
+			// );
 
-		const [emailJob] = await emailAgenda.jobs({
-			_id: ObjectId(user.alertJobId),
-		});
+			// fake campsites promise api hit
+			const campsites = await new Promise((resolve) =>
+				setTimeout(resolve, 200, [1])
+			);
 
-		if (
-			campsites.length > 0 &&
-			moment
-				.utc()
-				.isAfter(
-					moment
-						.utc(emailJob.attrs.lastFinishedAt)
-						.add(
-							user.notificationSettings.frequencyNumber,
-							user.notificationSettings.frequencyGranularity
-						)
-				)
-		) {
-			emailJob.attrs.data.campsites = campsites;
-			await emailJob.save();
+			console.log('campsites: ', campsites);
+
+			const [emailJob] = await emailAgenda.jobs({
+				_id: ObjectId(user.alertJobId),
+			});
+
+			if (
+				campsites.length > 0 &&
+				moment
+					.utc()
+					.isAfter(
+						moment
+							.utc(emailJob.attrs.lastFinishedAt)
+							.add(
+								user.notificationSettings.frequencyNumber,
+								user.notificationSettings.frequencyGranularity
+							)
+					)
+			) {
+				emailJob.attrs.data.campsites = campsites;
+				await emailJob.save();
+			}
 		}
 	}
 

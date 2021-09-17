@@ -4,6 +4,10 @@ const Alert = require('../models/Alert');
 const { findUser, findAlerts } = require('../helpers/index');
 const { emailAgenda } = require('../agenda');
 
+const mongoose = require('mongoose');
+
+const { ObjectId } = mongoose.Types;
+
 async function getUser(req, res) {
 	const { id } = req.params;
 	const user = await findUser(id);
@@ -16,6 +20,7 @@ async function getUsers(req, res) {
 }
 
 async function getAlerts(req, res) {
+	console.log('getAlerts req.user: ', req.user)
 	const results = await findAlerts();
 	res.send(results);
 }
@@ -34,7 +39,7 @@ async function addUser(req, res) {
 async function addAlert(req, res) {
 	const { userId, campground, checkinDate, checkoutDate, enabled } = req.body;
 	const alert = new Alert({
-		userId,
+		userId: ObjectId(userId),
 		campground,
 		checkinDate,
 		checkoutDate,
