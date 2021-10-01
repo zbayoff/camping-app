@@ -12,7 +12,6 @@ const { ObjectId } = mongoose.Types;
 router.get('/user/alerts', auth, async (res, req) => {
 	// fetch all alerts associated with authenticated user
 
-	console.log('user alerts req.user: ', req.user);
 	try {
 		// const alerts = await Alert.findById({ userId: ObjectId(req.user._id) }); // should both be ObjectId types
 		// res.send(alerts);

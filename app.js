@@ -1,11 +1,13 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const path = require('path');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const cookieSession = require('cookie-session');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 // configs
 dotenv.config('./.env');
@@ -18,20 +20,45 @@ const port = process.env.PORT || 5000;
 const { emailAgenda, recApiAgenda } = require('./api/agenda');
 
 app.use(morgan('tiny'));
-app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
+// app.use(function (req, res, next) {
+// 	res.header('Access-Control-Allow-Origin', '*');
+// 	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+// 	next();
+// });
+// app.use(
+// 	cors({
+// 		credentials: true,
+// 		origin: "http://localhost:3000",
+// 		// methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+// 	})
+// );
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
-app.use(
-	cookieSession({
-		maxAge: 300000, // session cookie age before user must log in again
-		keys: [process.env.COOKIE_SESSION_KEY],
-	})
-);
+// app.use(function (req, res, next) {
+// 	res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+// 	res.header('Access-Control-Allow-Credentials', true);
+// 	next();
+// });
+
+// app.use(
+// 	createProxyMiddleware('/auth/google', { target: 'http://localhost:5000' })
+// );
+// app.use(createProxyMiddleware('/api/**', { target: 'http://localhost:5000' }));
+
+// app.use(
+// 	cookieSession({
+// 		maxAge: 300000, // session cookie age before user must log in again
+// 		keys: [process.env.COOKIE_SESSION_KEY],
+// 	})
+// );
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 mongoose
 	.connect(process.env.MONGO_CONNECTION_STRING, {
@@ -69,6 +96,15 @@ app.use('/api', routes);
 // app.use('/', alertRoutes);
 app.use('/auth', authRoute);
 
+// app.get('*', (req, res) => {
+// 	res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+// });
+
+
+
+// app.get('/', (req, res) => {
+// 	res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+// });
 app.listen(port, () => {
 	console.log(`Example app listening at port:${port}`);
 });

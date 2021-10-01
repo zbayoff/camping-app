@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import { useGoogleLogin } from 'react-google-login';
+import jwt_decode from 'jwt-decode';
+import Cookies from 'js-cookie';
+
 // import { isLogin } from '../utils';
-import { useAuth } from '../contexts/useAuth';
+import { AuthContext } from '../contexts/authContext';
+import { validateToken } from '../utils/auth';
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
-	const { user } = useAuth();
-
-    console.log('user: ', user)
-
+export const PrivateRoute = ({ component, path, exact }) => {
 	return (
-		// Show the component only when the user is logged in
-		// Otherwise, redirect the user to /signin page
-
 		<Route
-			{...rest}
-			render={(props) =>
-				user ? <Component {...props} /> : null
-			}
+			path={path}
+			exact={exact}
+			render={(routeProps) => {
+				return (
+					<PrivatePage
+						path={path}
+						Component={component}
+						componentProps={routeProps}
+					/>
+				);
+			}}
 		/>
 	);
+};
+
+const PrivatePage = ({ Component, componentProps }) => {
+	if (
+		!validateToken(localStorage.getItem('jwtToken')) ||
+		!Cookies.get('secondToken')
+	) {
+		return (
+			<Redirect
+				to={{
+					pathname: '/login',
+					state: { from: componentProps.location },
+				}}
+			/>
+		);
+	} else {
+		return (
+			<Route {...componentProps} render={(props) => <Component {...props} />} />
+		);
+	}
 };
 
 export default PrivateRoute;

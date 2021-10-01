@@ -1,10 +1,10 @@
+const mongoose = require('mongoose');
+
 const User = require('../models/User');
 const Alert = require('../models/Alert');
 
 const { findUser, findAlerts } = require('../helpers/index');
 const { emailAgenda } = require('../agenda');
-
-const mongoose = require('mongoose');
 
 const { ObjectId } = mongoose.Types;
 
@@ -20,7 +20,6 @@ async function getUsers(req, res) {
 }
 
 async function getAlerts(req, res) {
-	console.log('getAlerts req.user: ', req.user)
 	const results = await findAlerts();
 	res.send(results);
 }

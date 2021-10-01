@@ -1,19 +1,26 @@
-// require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-	if (!req.user) {
-		// user not logged
-		// res.redirect('/auth/google');
-		res.status(401).json({
-			authenticated: false,
-			message: 'user has not been authenticated',
+	const { token } = req.cookies;
+	// decode token
+	if (token) {
+		// verifies secret and checks exp
+		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+			if (err) {
+				res.status(401).send({
+					success: false,
+					message: 'Failed to authenticate token.',
+				});
+			} else {
+				// if everything is good, save to request for use in other routes
+				req.userId = decoded._id;
+				next();
+			}
 		});
-
-
-
-		// should head back to /auth/google for user login?
-
 	} else {
-		next();
+		// if there is no token, return an error
+		res.status(401).json({
+			message: 'Auth error',
+		});
 	}
 };

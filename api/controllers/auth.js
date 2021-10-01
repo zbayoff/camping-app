@@ -3,10 +3,32 @@ const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// require('dotenv').config();
-
 const User = require('../models/User');
 
+const signJwtToken = (user, res) => {
+	const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+		expiresIn: '10 minutes',
+	});
+
+	res.cookie('token', jwtToken, {
+		httpOnly: true,
+		maxAge: 600000, // 10 minutes
+		path: '/',
+		secure: process.env.NODE_ENV === 'production',
+	});
+	res.cookie('secondToken', jwtToken, {
+		httpOnly: false,
+		maxAge: 600000, // 10 minutes
+		path: '/',
+		secure: process.env.NODE_ENV === 'production',
+	});
+	res.send({
+		jwtToken,
+		user,
+	});
+};
+
+// register/login user
 const auth = async (req, res) => {
 	const { token } = req.body;
 	const ticket = await client.verifyIdToken({
@@ -16,27 +38,19 @@ const auth = async (req, res) => {
 
 	const { sub, email_verified, email, given_name, family_name, picture } =
 		ticket.getPayload();
-	// console.log('ticket.getPayload();: ', ticket.getPayload());
 
 	if (email_verified) {
 		try {
 			const user = await User.findOne({ email });
+			// login user
+			// create a jwt
 			if (user) {
 				console.log('user exists!');
 				// generate JSON Web Token
-				const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-					expiresIn: '30 seconds',
-				});
 
-				res
-					.cookie('token', jwtToken, {
-						httpOnly: true,
-						maxAge: 600000, // 10 minutes
-					})
-					.send({
-						jwtToken,
-						user,
-					});
+				signJwtToken(user, res);
+
+				// set an http Only cookie and send it back to the user to use for future api access attempts.
 			} else {
 				console.log('create user');
 				const newUser = new User({
@@ -48,38 +62,16 @@ const auth = async (req, res) => {
 				});
 
 				const createdUser = await User.create(newUser);
-				const jwtToken = jwt.sign(
-					{ _id: createdUser._id },
-					process.env.JWT_SECRET,
-					{
-						expiresIn: '30 seconds',
-					}
-				);
-				console.log('createdUser: ', createdUser);
-				res
-					.cookie('token', jwtToken, {
-						httpOnly: true,
-						maxAge: 600000, // 10 minutes
-					})
-					.send({
-						jwtToken,
-						user: createdUser,
-					});
+				signJwtToken(createdUser, res);
 			}
 		} catch (error) {
 			console.log('error fetching user: ', error);
 		}
+	} else {
+		res.status(403).json({
+			data: 'google email not verified, try creating a valid google email',
+		});
 	}
-
-	// check if user is in DB, if not add them/update them with new token
-
-	// const user = await db.user.upsert({
-	// 	where: { email: email },
-	// 	update: { name, picture },
-	// 	create: { name, email, picture },
-	// });
-	// res.status(201);
-	// res.json(ticket.getPayload());
 };
 
 module.exports = {

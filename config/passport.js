@@ -11,10 +11,10 @@ module.exports = (passport) => {
 				callbackURL: '/auth/google/callback',
 				// passReqToCallback: true,
 
-				proxy: true,
+				// proxy: true,
 			},
 			async (accessToken, refreshToken, profile, done) => {
-				// console.log('profile, ', profile);
+				console.log('profile, ', profile);
 
 				try {
 					const user = await User.findOne({ googleId: profile.id });
