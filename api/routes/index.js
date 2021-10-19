@@ -10,6 +10,7 @@ const auth = require('../middleware/checkAuth');
 const router = express.Router();
 
 const mainController = require('../controllers/index');
+const { getAvailableCampsites } = require('../helpers/recreationGovApi');
 
 router.get('/alerts', auth, mainController.getAlerts);
 router.post('/alert', mainController.addAlert);
@@ -34,6 +35,22 @@ router.get('/authuser/alerts', auth, async (req, res) => {
 			message: 'no alerts found',
 			error,
 		});
+	}
+});
+
+router.post('/availableCampsites', async (req, res, next) => {
+	const { campgroundId, checkinDate, checkoutDate } = req.body;
+
+	try {
+		const campsites = await getAvailableCampsites(
+			campgroundId,
+			checkinDate,
+			checkoutDate
+		);
+		res.json(campsites);
+	} catch (err) {
+		console.log('err getAvailableCampsites: ', err);
+		next(err);
 	}
 });
 

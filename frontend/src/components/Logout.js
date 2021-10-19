@@ -12,6 +12,8 @@ const Logout = () => {
 
 	const onLogoutSuccessHandler = async (response) => {
 		console.log('response: ', response);
+		history.replace('/');
+		
 		const res = await axios.delete('/auth/google');
 		// // const data = await res.json();
 		console.log('res: ', res);
@@ -23,7 +25,7 @@ const Logout = () => {
 
 		setUser(null);
 
-		history.replace('/');
+		
 	};
 
 	const onFailureHandler = () => {

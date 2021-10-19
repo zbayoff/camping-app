@@ -142,7 +142,7 @@ const checkCampsites = (response, startDate, endDate) => {
 		}
 	});
 
-	const group_to_values = availableSites.reduce(function (obj, item) {
+	const groupToValues = availableSites.reduce((obj, item) => {
 		obj[item.date] = obj[item.date] || [];
 		obj[item.date].push({
 			loop: item.loop,
@@ -152,8 +152,8 @@ const checkCampsites = (response, startDate, endDate) => {
 		return obj;
 	}, {});
 
-	const availableSitesArray = Object.keys(group_to_values).map(function (key) {
-		return { date: key, sites: group_to_values[key] };
+	const availableSitesArray = Object.keys(groupToValues).map((key) => {
+		return { date: key, sites: groupToValues[key] };
 	});
 
 	return availableSitesArray;
@@ -174,23 +174,42 @@ const getPermits = (permit, start, startDate, endDate) => {
 	});
 };
 
-const getAvailableCampsites = (campground, startDate, endDate) => {
-	const startMonth = moment(startDate)
-		.startOf('month')
-		.format('YYYY-MM-DD');
+const getAvailableCampsites = async (campground, startDate, endDate) => {
+	const format = 'YYYY-MM-DD';
 
-	const apiURL = `https://www.recreation.gov/api/camps/availability/campground/${campground}/month?start_date=${startMonth}T00%3A00%3A00.000Z`;
+	const start = moment(startDate);
+	const end = moment(endDate);
 
-	return new Promise((resolve, reject) => {
-		Axios.get(apiURL)
-			.then((response) => {
-				resolve(checkCampsites(response, startDate, endDate));
-			})
-			.catch(function (error) {
-				console.log(error);
-				reject(error);
-			});
+	const startMonths = [];
+	// get the start of every month between and including startDate and endDate
+	while (
+		start.isBefore(end) ||
+		start.clone().format('M') === end.clone().format('M')
+	) {
+		startMonths.push(moment(start).startOf('month').format(format));
+		start.add(1, 'month');
+	}
+
+	// need to fetch campsites for each month, if startDate and endDate fall on different months
+
+	// Promise.all to loop through each 'startMonth' and combine all available sites into one array
+	const promises = startMonths.map((month) => {
+		const apiURL = `https://www.recreation.gov/api/camps/availability/campground/${campground}/month?start_date=${month}T00%3A00%3A00.000Z`;
+		return new Promise((resolve, reject) => {
+			Axios.get(apiURL)
+				.then((response) => {
+					resolve(checkCampsites(response, startDate, endDate));
+				})
+				.catch((error) => {
+					console.log(error);
+					reject(error);
+				});
+		});
 	});
+
+	const allCampsites = await Promise.all(promises);
+
+	return allCampsites.flat(Infinity);
 };
 
 const availability = async (event) => {
