@@ -1,16 +1,15 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-// require('dotenv').config();  
-
-const { MONGO_CONNECTION_STRING } = process.env;
-const Agenda = require('agenda');
 const moment = require('moment');
 const mongoose = require('mongoose');
-
-const { ObjectId } = mongoose.Types;
+const Agenda = require('agenda');
 
 const { findUser, findAlerts } = require('./helpers/index');
 const { getAvailableCampsites } = require('./helpers/recreationGovApi');
+
+const { ObjectId } = mongoose.Types;
+
+const { MONGO_CONNECTION_STRING } = process.env;
 
 const emailAgenda = new Agenda({
 	db: { address: MONGO_CONNECTION_STRING, collection: 'emailJobs' },
@@ -24,6 +23,7 @@ emailAgenda.define('email user', async (job) => {
 	const { to } = job.attrs.data;
 
 	console.log(`emailing user.... ${to}`);
+
 	// await emailClient.send({
 	//   to,
 	//   from: "example@example.com",
@@ -38,21 +38,22 @@ recApiAgenda.define('hit Rec Api', async (job) => {
 
 	for (const alert of alerts) {
 		const user = await findUser(alert.userId);
-		console.log(
-			`hit rec api for user: ${user.firstName} for campground: ${alert.campground} `
-		);
 
 		if (alert.enabled) {
-			// const campsites = await getAvailableCampsites(
-			// 	alert.campground,
-			// 	alert.checkinDate,
-			// 	alert.checkoutDate
-			// );
-
-			// fake campsites promise api hit
-			const campsites = await new Promise((resolve) =>
-				setTimeout(resolve, 200, [1])
+			console.log(
+				`hit rec api for user: ${user.firstName} for campground: ${alert.campground} `
 			);
+			const campsites = await getAvailableCampsites(
+				alert.campground.id,
+				alert.checkinDate,
+				alert.checkoutDate
+			);
+
+			// fake campsites promise api hit: start
+			// const campsites = await new Promise((resolve) =>
+			// 	setTimeout(resolve, 200, [])
+			// );
+			// fake campsites promise api hit: end
 
 			console.log('campsites: ', campsites);
 
@@ -73,18 +74,12 @@ recApiAgenda.define('hit Rec Api', async (job) => {
 							)
 					)
 			) {
+				// trigger the email Job
 				emailJob.attrs.data.campsites = campsites;
 				await emailJob.save();
 			}
 		}
 	}
-
-	// const promises = alerts.map(async (alert) => {
-	// 	// everything in here should be synchronous
-	// 	// hit rec api, check if campsites available, email user
-	// });
-
-	// await Promise.all(promises);
 });
 
 module.exports = {

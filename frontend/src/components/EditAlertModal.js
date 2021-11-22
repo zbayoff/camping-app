@@ -1,52 +1,126 @@
-import React from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 
-import Backdrop from '@mui/material/Backdrop';
+import axios from 'axios';
+
 import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Fade from '@mui/material/Fade';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
-const EditAlertModal = ({alert, handleOpen, handleClose, open}) => {
-	// const [open, setOpen] = React.useState(false);
-	// const handleOpen = () => setOpen(true);
-	// const handleClose = () => setOpen(false);
+import {
+	Button,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+} from '@mui/material';
 
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 400,
-        bgcolor: 'background.paper',
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
-      };
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Dialog from '@mui/material/Dialog';
+
+import { SnackbarContext } from '../contexts/snackbarContext';
+
+const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
+	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
+	const [enabledValue, setEnabledValue] = useState(alert.enabled);
+
+	useEffect(() => {
+		setEnabledValue(alert.enabled);
+	}, [alert.enabled]);
+
+	const handleChange = (event) => {
+		if (event.target.value === 'true') {
+			setEnabledValue(true);
+		} else {
+			setEnabledValue(false);
+		}
+	};
+
+	const onSubmitHandler = async (event) => {
+		event.preventDefault();
+
+		const newObj = { ...alert, enabled: enabledValue };
+
+		try {
+			const response = await axios.put(
+				`http://localhost:5000/api/alert/${alert.id}`,
+				{
+					alert: newObj,
+				},
+				{
+					withCredentials: true,
+				}
+			);
+
+			console.log('response: ', response);
+			setSeverity('success');
+			setMessage('Success! Your alert has been updated.');
+			setSnackOpen(true);
+
+			handleClose();
+		} catch (err) {
+			console.log('err updating alert: ', err.response);
+
+			// show custom snackbar error
+			setSeverity('error');
+			setMessage(
+				'Error updating alert: ' +
+					' ' +
+					err.response.status +
+					' ' +
+					err.response.statusText
+			);
+			setSnackOpen(true);
+		}
+	};
 
 	return (
-		<Modal
-			aria-labelledby="transition-modal-title"
-			aria-describedby="transition-modal-description"
-			open={open}
-			onClose={handleClose}
-			closeAfterTransition
-			BackdropComponent={Backdrop}
-			BackdropProps={{
-				timeout: 500,
-			}}
-		>
-			<Fade in={open}>
-				<Box sx={style}>
-					<Typography id="transition-modal-title" variant="h6" component="h2">
-						Edit Alert: {alert ? alert.campground : null}
-					</Typography>
-					<Typography id="transition-modal-description" sx={{ mt: 2 }}>
-						Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-					</Typography>
-				</Box>
-			</Fade>
-		</Modal>
+		<Dialog open={open} onClose={handleClose}>
+			<Box
+				px={0}
+				py={0}
+				component="form"
+				className=""
+				sx={{
+					'& > :not(style)': { m: 1 },
+				}}
+				autoComplete="off"
+				onSubmit={onSubmitHandler}
+			>
+				<DialogTitle>
+					Edit Alert for {alert ? alert.campground.name : null}
+				</DialogTitle>
+
+				<DialogContent>
+					<FormControl component="fieldset">
+						<FormLabel component="legend">Enabled?</FormLabel>
+						<RadioGroup
+							aria-label="gender"
+							name="controlled-radio-buttons-group"
+							value={enabledValue}
+							onChange={handleChange}
+						>
+							<FormControlLabel
+								value={'true'}
+								control={<Radio />}
+								label="True"
+							/>
+							<FormControlLabel
+								value={'false'}
+								control={<Radio />}
+								label="False"
+							/>
+						</RadioGroup>
+					</FormControl>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose}>Cancel</Button>
+					<Button variant="contained" onClick={onSubmitHandler}>
+						Save
+					</Button>
+				</DialogActions>
+			</Box>
+		</Dialog>
 	);
 };
 

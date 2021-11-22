@@ -59,6 +59,10 @@ const auth = async (req, res) => {
 					firstName: given_name,
 					lastName: family_name,
 					picture,
+					notificationSettings: {
+						frequencyNumber: 1,
+						frequencyGranularity: 'minute',
+					},
 				});
 
 				const createdUser = await User.create(newUser);

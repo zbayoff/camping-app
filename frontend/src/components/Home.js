@@ -1,16 +1,20 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useContext, useRef } from 'react';
+import { AuthContext } from '../contexts/authContext';
+
 import _ from 'lodash';
 
 import axios from 'axios';
 import { Box } from '@mui/system';
 import TextField from '@mui/material/TextField';
 
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import AdapterDateFns from '@mui/lab/AdapterMoment';
+
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DateRangePicker from '@mui/lab/DateRangePicker';
 import {
 	Avatar,
 	Button,
+	Link,
 	List,
 	ListItem,
 	ListItemAvatar,
@@ -22,8 +26,10 @@ import AddAlertIcon from '@mui/icons-material/AddAlert';
 import { SvgIcon } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import moment from 'moment';
+import Login from './Login';
+import CreateAlertModal from './CreateAlertModal';
 
-// import { useTheme } from '@mui/styles';
+import { SnackbarContext } from '../contexts/snackbarContext';
 
 const Home = () => {
 	const [campgroundValue, setCampgroundValue] = useState({
@@ -34,11 +40,13 @@ const Home = () => {
 	const [availableCampsites, setAvalableCampsites] = useState([]);
 	const [openSuggestions, setOpenSuggestions] = useState(false);
 	const [openAvailabilities, setOpenAvailabilities] = useState(false);
+	const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
 
-	const [error, setError] = useState(null);
+	const { user } = useContext(AuthContext);
+
+	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
 
 	const inputEl = useRef(null);
-
 
 	const fetchCampgrounds = async (event) => {
 		console.log('fetching from rec api');
@@ -51,8 +59,15 @@ const Home = () => {
 					setCampgroundSuggestions(data.inventory_suggestions);
 				}
 			} catch (err) {
-				console.log('error fetching campgrounds: ', err);
-				console.log('err.data', err.data);
+				console.log('error fetching campgrounds: ', err.response);
+				setSeverity('error');
+				setMessage(
+					'Error fetching campgrounds: ' +
+						err.response.status +
+						' ' +
+						err.response.statusText
+				);
+				setSnackOpen(true);
 			}
 		}
 	};
@@ -89,8 +104,12 @@ const Home = () => {
 				setAvalableCampsites([]);
 			}
 		} catch (err) {
-			console.log('err fetching available campsites: ', err);
-			setError(err);
+			console.log('Error fetching available campsites: ', err.response);
+			setSeverity('error');
+			setMessage(
+				'Error fetching campgrounds: ' + err.response.data.message + ' '
+			);
+			setSnackOpen(true);
 			// TODO display Error message
 		}
 	};
@@ -145,6 +164,7 @@ const Home = () => {
 								height: '32px',
 							}}
 						></div>
+						{/* TODO: Validate dates are past NOW */}
 						<LocalizationProvider dateAdapter={AdapterDateFns}>
 							<DateRangePicker
 								calendars={1}
@@ -281,54 +301,75 @@ const Home = () => {
 						</Box>
 					) : null}
 
-					{error ? (
-						<div>{error.data}</div>
-					) : availableCampsites.length && openAvailabilities ? (
+					{availableCampsites.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
-							<List
-							// sx={{
-							// 	width: '100%',
-							// 	maxWidth: 360,
-							// 	bgcolor: 'background.paper',
-							// }}
-							>
-								<p>Availabilities: </p>
-								{availableCampsites
-									.sort(
-										(a, b) =>
-											moment(a.date).valueOf() - moment(b.date).valueOf()
-									)
-									.map((campsite) => {
-										return (
-											<a
-												href={`https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`}
-												style={{ display: 'block' }}
-												target="_blank"
-												rel="noreferrer"
-											>
-												{campsite.sites.length}{' '}
-												{campsite.sites.length > 1
-													? 'availabilities'
-													: 'available'}{' '}
-												for: {moment(campsite.date).format('MM-DD-YYYY')}
-											</a>
-										);
-									})}
+							<List>
+								<h3 style={{ margin: 0 }}>Campsite Availabilities: </h3>
+								<p style={{ margin: 0 }}>
+									Reserve on{' '}
+									<Link
+										target="_blank"
+										rel="noreferrer"
+										href={`https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`}
+									>
+										Recreation.Gov!
+									</Link>
+								</p>
+								<List>
+									{availableCampsites
+										.sort(
+											(a, b) =>
+												moment(a.date).valueOf() - moment(b.date).valueOf()
+										)
+										.map((campsite, index) => {
+											return (
+												<ListItem disablePadding>
+													<ListItemText key={index}>
+														{campsite.sites.length}{' '}
+														{campsite.sites.length > 1
+															? 'availabilities'
+															: 'available'}{' '}
+														for: {moment(campsite.date).format('MM-DD-YYYY')}
+													</ListItemText>
+												</ListItem>
+											);
+										})}
+								</List>
 							</List>
 						</Box>
 					) : !availableCampsites.length && openAvailabilities ? (
-						<Box className="search-results" p={2} style={{display: 'flex', alignItems: 'center'}}>
+						<Box
+							className="search-results"
+							p={2}
+							style={{ display: 'flex', alignItems: 'center' }}
+						>
 							<Typography>
 								No available campsites for the selected dates.
 							</Typography>
-							<Button
-								variant="contained"
-								startIcon={<AddAlertIcon />}
-								style={{marginLeft: 'auto'}}
-								// onClick={handleClick}
-							>
-								Create an alert
-							</Button>
+							{user ? (
+								<>
+									<Button
+										variant="contained"
+										startIcon={<AddAlertIcon />}
+										style={{ marginLeft: 'auto' }}
+										onClick={() => setAddAlertModalOpen(true)}
+									>
+										Create an alert
+									</Button>
+									<CreateAlertModal
+										open={addAlertModalOpen}
+										handleClose={() => {
+											setAddAlertModalOpen(false);
+										}}
+										campgroundValue={campgroundValue}
+										checkInOutDates={checkInOutDates}
+									/>
+								</>
+							) : (
+								<Box ml="auto">
+									<Login loginText="Login to create an alert" />
+								</Box>
+							)}
 						</Box>
 					) : null}
 				</Box>

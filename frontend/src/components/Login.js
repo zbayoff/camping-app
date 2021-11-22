@@ -4,7 +4,7 @@ import GoogleLogin from 'react-google-login';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/authContext';
 
-const Login = () => {
+const Login = ({ loginText = 'Login' }) => {
 	const history = useHistory();
 	const location = useLocation();
 	const { setUser } = useContext(AuthContext);
@@ -14,10 +14,8 @@ const Login = () => {
 		const { data } = await axios.post('/auth/google', {
 			token: response.tokenId,
 		});
-		// const data = await res.json();
 		console.log('data: ', data);
 
-		// save user data and jwt in localStorage
 		localStorage.setItem('user', JSON.stringify(data.user));
 		localStorage.setItem('jwtToken', data.jwtToken);
 
@@ -96,14 +94,11 @@ const Login = () => {
 						</svg>
 					</div>
 					<span style={{ padding: '10px 10px 10px 0px', fontWeight: 500 }}>
-						Login
+						{loginText}
 					</span>
 				</button>
 			)}
 		/>
-		// <a href="http://localhost:5000/auth/google">
-		// 	<button>Login With Google</button>
-		// </a>
 	);
 };
 

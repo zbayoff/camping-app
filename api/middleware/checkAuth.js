@@ -7,6 +7,7 @@ module.exports = (req, res, next) => {
 		// verifies secret and checks exp
 		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
 			if (err) {
+				// would like to redirect user to /login page
 				res.status(401).send({
 					success: false,
 					message: 'Failed to authenticate token.',
@@ -20,7 +21,7 @@ module.exports = (req, res, next) => {
 	} else {
 		// if there is no token, return an error
 		res.status(401).json({
-			message: 'Auth error',
+			message: 'Unauthenticated Request. Please login and try again.',
 		});
 	}
 };

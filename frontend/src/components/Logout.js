@@ -1,13 +1,12 @@
 import React, { useContext } from 'react';
 import axios from 'axios';
 import { GoogleLogout } from 'react-google-login';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { AuthContext } from '../contexts/authContext';
 
 const Logout = () => {
 	const history = useHistory();
-	// const location = useLocation();
 	const { setUser } = useContext(AuthContext);
 
 	const onLogoutSuccessHandler = async (response) => {
@@ -15,7 +14,6 @@ const Logout = () => {
 		history.replace('/');
 		
 		const res = await axios.delete('/auth/google');
-		// // const data = await res.json();
 		console.log('res: ', res);
 
 		// save user data and jwt in localStorage

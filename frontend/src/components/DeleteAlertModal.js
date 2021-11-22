@@ -1,52 +1,84 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
-import Backdrop from '@mui/material/Backdrop';
+import axios from 'axios';
+
 import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Fade from '@mui/material/Fade';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
-const DeleteAlertModal = ({ alert, handleOpen, handleClose, open }) => {
-	// const [open, setOpen] = React.useState(false);
-	// const handleOpen = () => setOpen(true);
-	// const handleClose = () => setOpen(false);
+import {
+	Button,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
 
-	const style = {
-		position: 'absolute',
-		top: '50%',
-		left: '50%',
-		transform: 'translate(-50%, -50%)',
-		width: 400,
-		bgcolor: 'background.paper',
-		border: '2px solid #000',
-		boxShadow: 24,
-		p: 4,
+import { SnackbarContext } from '../contexts/snackbarContext';
+
+const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
+	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
+
+	const onSubmitHandler = async (event) => {
+		event.preventDefault();
+
+		try {
+			const response = await axios.delete(
+				`http://localhost:5000/api/alert/${alert.id}`,
+				{
+					withCredentials: true,
+				}
+			);
+
+			console.log('response: ', response);
+			setSeverity('success');
+			setMessage('Success! Your alert has been deleted.');
+			setSnackOpen(true);
+
+			handleClose();
+		} catch (err) {
+			console.log('err deleting alert: ', err.response);
+
+			// show custom snackbar error
+			setSeverity('error');
+			setMessage(
+				'Error deleting alert: ' +
+					' ' +
+					err.response.status +
+					' ' +
+					err.response.statusText
+			);
+			setSnackOpen(true);
+		}
 	};
 
 	return (
-		<Modal
-			aria-labelledby="transition-modal-title"
-			aria-describedby="transition-modal-description"
-			open={open}
-			onClose={handleClose}
-			closeAfterTransition
-			BackdropComponent={Backdrop}
-			BackdropProps={{
-				timeout: 500,
-			}}
-		>
-			<Fade in={open}>
-				<Box sx={style}>
-					<Typography id="transition-modal-title" variant="h6" component="h2">
-						Delete Alert: {alert ? alert.campground : null}
-					</Typography>
-					<Typography id="transition-modal-description" sx={{ mt: 2 }}>
-						Delete Cancel{' '}
-					</Typography>
-				</Box>
-			</Fade>
-		</Modal>
+		<Dialog open={open} onClose={handleClose}>
+			<Box
+				px={0}
+				py={0}
+				component="form"
+				className=""
+				sx={{
+					'& > :not(style)': { m: 1 },
+				}}
+				autoComplete="off"
+				onSubmit={onSubmitHandler}
+			>
+				<DialogTitle>Delete Alert</DialogTitle>
+
+				<DialogContent>
+					<DialogContentText>
+						Delete alert for campground: {alert ? alert.campground.name : null}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose}>Cancel</Button>
+					<Button color="error" variant="contained" onClick={onSubmitHandler}>
+						Delete
+					</Button>
+				</DialogActions>
+			</Box>
+		</Dialog>
 	);
 };
 
