@@ -8,10 +8,14 @@ import { AuthContext } from '../contexts/authContext';
 import {
 	Button,
 	FormControl,
+	Icon,
 	MenuItem,
 	Select,
+	Tooltip,
 	Typography,
 } from '@mui/material';
+
+import InfoIcon from '@mui/icons-material/Info';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
@@ -43,7 +47,7 @@ const Settings = () => {
 
 		try {
 			const response = await axios.put(
-				'http://localhost:5000/api/user',
+				'/api/user',
 				{
 					user: updatedUser,
 				},
@@ -54,7 +58,7 @@ const Settings = () => {
 
 			console.log('response: ', response);
 			setSeverity('success');
-			setMessage('Success! Your settings have been created.');
+			setMessage('Success! Your settings have been updated.');
 			setSnackOpen(true);
 			setIsEditing(false);
 			setUser(updatedUser);
@@ -63,7 +67,7 @@ const Settings = () => {
 
 			// need to update "user" Context
 		} catch (err) {
-			console.log('err updating alert: ', err.response);
+			console.log('err updating settings: ', err.response);
 
 			// show custom snackbar error
 			setSeverity('error');
@@ -74,10 +78,9 @@ const Settings = () => {
 					' ' +
 					err.response.statusText
 			);
+			setSnackOpen(true);
 		}
 	};
-
-	console.log('user: ', user);
 
 	return (
 		<div>
@@ -89,6 +92,11 @@ const Settings = () => {
 							<Box mb={1}>
 								<Typography sx={{ fontWeight: 'bold' }}>
 									Frequency of Notifications
+									<Tooltip title="When a campsite becomes available for a given alert, you will be notified by email at this specified frequency.">
+										<Icon>
+											<InfoIcon />
+										</Icon>
+									</Tooltip>
 								</Typography>
 							</Box>
 							{isEditing ? (
@@ -127,6 +135,7 @@ const Settings = () => {
 								</Box>
 							) : (
 								<Box mb={1}>
+									Every:{' '}
 									{user.notificationSettings.frequencyNumber}{' '}
 									{user.notificationSettings.frequencyGranularity}
 								</Box>

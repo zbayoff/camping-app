@@ -23,7 +23,7 @@ const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
 
 		try {
 			const response = await axios.delete(
-				`http://localhost:5000/api/alert/${alert.id}`,
+				`/api/alert/${alert.id}`,
 				{
 					withCredentials: true,
 				}

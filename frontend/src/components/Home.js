@@ -83,13 +83,11 @@ const Home = () => {
 
 	const onSubmitHandler = async (event) => {
 		event.preventDefault();
-		console.log('campgroundValue: ', campgroundValue);
-		console.log('checkInOutDates: ', checkInOutDates);
 		// fetch availabilites
 
 		try {
 			const { data } = await axios.post(
-				'http://localhost:5000/api/availableCampsites',
+				'/api/availableCampsites',
 				{
 					campgroundId: campgroundValue.entityId,
 					checkinDate: checkInOutDates[0],
@@ -323,8 +321,8 @@ const Home = () => {
 										)
 										.map((campsite, index) => {
 											return (
-												<ListItem disablePadding>
-													<ListItemText key={index}>
+												<ListItem disablePadding key={index}>
+													<ListItemText>
 														{campsite.sites.length}{' '}
 														{campsite.sites.length > 1
 															? 'availabilities'

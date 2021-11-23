@@ -38,7 +38,7 @@ const CreateAlertModal = ({
 
 		try {
 			const response = await axios.post(
-				'http://localhost:5000/api/alert',
+				'/api/alert',
 				{
 					campground: {
 						id: campgroundValue.entityId,

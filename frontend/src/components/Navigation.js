@@ -24,7 +24,6 @@ const Navigation = () => {
 		setAnchorEl(null);
 	};
 
-	console.log('user: ', user);
 	return (
 		<div className={`Navbar ${pathname === '/' ? 'home' : ''}`}>
 			<div>

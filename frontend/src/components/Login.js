@@ -14,7 +14,6 @@ const Login = ({ loginText = 'Login' }) => {
 		const { data } = await axios.post('/auth/google', {
 			token: response.tokenId,
 		});
-		console.log('data: ', data);
 
 		localStorage.setItem('user', JSON.stringify(data.user));
 		localStorage.setItem('jwtToken', data.jwtToken);

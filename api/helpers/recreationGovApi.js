@@ -201,7 +201,10 @@ const getAvailableCampsites = async (campground, startDate, endDate) => {
 					resolve(checkCampsites(response, startDate, endDate));
 				})
 				.catch((error) => {
-					console.log(error);
+					console.log(
+						'Error fetching available campsites from Rec.gov: ',
+						error
+					);
 					reject(error);
 				});
 		});

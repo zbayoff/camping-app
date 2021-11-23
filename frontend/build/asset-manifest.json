@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.51ece550.chunk.css",
-    "main.js": "/static/js/main.59cbe51b.chunk.js",
-    "main.js.map": "/static/js/main.59cbe51b.chunk.js.map",
+    "main.css": "/static/css/main.1fb4fd44.chunk.css",
+    "main.js": "/static/js/main.a04c941c.chunk.js",
+    "main.js.map": "/static/js/main.a04c941c.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.248907bc.js",
     "runtime-main.js.map": "/static/js/runtime-main.248907bc.js.map",
-    "static/js/2.a01bd2eb.chunk.js": "/static/js/2.a01bd2eb.chunk.js",
-    "static/js/2.a01bd2eb.chunk.js.map": "/static/js/2.a01bd2eb.chunk.js.map",
+    "static/js/2.8b20c7a5.chunk.js": "/static/js/2.8b20c7a5.chunk.js",
+    "static/js/2.8b20c7a5.chunk.js.map": "/static/js/2.8b20c7a5.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/main.51ece550.chunk.css.map": "/static/css/main.51ece550.chunk.css.map",
-    "static/js/2.a01bd2eb.chunk.js.LICENSE.txt": "/static/js/2.a01bd2eb.chunk.js.LICENSE.txt",
+    "static/css/main.1fb4fd44.chunk.css.map": "/static/css/main.1fb4fd44.chunk.css.map",
+    "static/js/2.8b20c7a5.chunk.js.LICENSE.txt": "/static/js/2.8b20c7a5.chunk.js.LICENSE.txt",
     "static/media/App.scss": "/static/media/yosemite-bg-image.77b4a020.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.248907bc.js",
-    "static/js/2.a01bd2eb.chunk.js",
-    "static/css/main.51ece550.chunk.css",
-    "static/js/main.59cbe51b.chunk.js"
+    "static/js/2.8b20c7a5.chunk.js",
+    "static/css/main.1fb4fd44.chunk.css",
+    "static/js/main.a04c941c.chunk.js"
   ]
 }

@@ -43,7 +43,7 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 
 		try {
 			const response = await axios.put(
-				`http://localhost:5000/api/alert/${alert.id}`,
+				`/api/alert/${alert.id}`,
 				{
 					alert: newObj,
 				},

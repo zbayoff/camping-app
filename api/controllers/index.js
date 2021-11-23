@@ -4,7 +4,6 @@ const User = require('../models/User');
 const Alert = require('../models/Alert');
 
 const { findUser, findAlerts } = require('../helpers/index');
-console.log('here!')
 const { emailAgenda } = require('../agenda');
 
 const { ObjectId } = mongoose.Types;
@@ -42,7 +41,6 @@ async function addAlert(req, res) {
 	// TODO: check that user has already created an alert for this campground ID.
 	const { userId } = req;
 	const { campground, checkinDate, checkoutDate, enabled } = req.body;
-	console.log('checkinDate: ', checkinDate);
 	const alert = new Alert({
 		userId: ObjectId(userId),
 		campground: {

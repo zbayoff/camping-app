@@ -28,14 +28,15 @@ const Alerts = () => {
 		const fetchUserAlerts = async () => {
 			console.log('fetching userAlerts...');
 			try {
-				const { data } = await axios.get(
-					'http://localhost:5000/api/user/alerts',
+				const response = await axios.get(
+					'/api/user/alerts',
 					{
 						withCredentials: true,
 					}
 				);
-				if (data) {
-					const rows = data.map((row) => {
+				console.log('response: ', response)
+				if (response.data) {
+					const rows = response.data.map((row) => {
 						return {
 							id: row._id,
 							campground: { id: row.campground.id, name: row.campground.name },
