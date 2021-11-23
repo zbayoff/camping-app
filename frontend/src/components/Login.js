@@ -35,7 +35,7 @@ const Login = ({ loginText = 'Login' }) => {
 
 	return (
 		<GoogleLogin
-			clientId="233067414245-il4rkpad53ot27kgln3pe3qbimuu6gvj.apps.googleusercontent.com"
+			clientId="233067414245-6ao88jel7gisn84jaorp972u114br5a2.apps.googleusercontent.com"
 			buttonText="Login"
 			onSuccess={onSuccessHandler}
 			onFailure={onFailureHandler}

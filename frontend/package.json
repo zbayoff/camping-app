@@ -2,7 +2,6 @@
 	"name": "frontend",
 	"version": "0.1.0",
 	"private": true,
-	"homepage": "https://zb-camping-app.herokuapp.com/",
 	"engines": {
 		"node": "16.x"
 	},
