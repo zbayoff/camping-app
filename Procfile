@@ -1,2 +1,2 @@
 web: node webapp
-worker: node agenda 
+worker: node agendaApp 
