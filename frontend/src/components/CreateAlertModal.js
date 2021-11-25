@@ -36,37 +36,47 @@ const CreateAlertModal = ({
 	const onSubmitHandler = async (event) => {
 		event.preventDefault();
 
-		try {
-			const response = await axios.post(
-				'/api/alert',
-				{
-					campground: {
-						id: campgroundValue.entityId,
-						name: campgroundValue.displayName,
-					},
-					checkinDate: checkInOutDates[0].format('YYYY-MM-DD'),
-					checkoutDate: checkInOutDates[1].format('YYYY-MM-DD'),
-					enabled: true,
-				},
-				{
-					withCredentials: true,
-				}
-			);
-
-			console.log('response: ', response);
-			setSeverity('success');
-			setMessage('Success! Your alert has been created.');
-			setSnackOpen(true);
-
-			handleClose();
-			history.push('/alerts');
-		} catch (err) {
-			console.log('err adding alert: ', err.response);
-
-			// show custom snackbar error
+		// restrict alerts to 2 week period MAX
+		if (
+			Math.abs(checkInOutDates[0].diff(checkInOutDates[1], 'days')) + 1 >
+			14
+		) {
 			setSeverity('error');
-			setMessage(err.response.status + ' ' + err.response.statusText);
+			setMessage('Error. An alert may be created only for a 14 day period.');
 			setSnackOpen(true);
+		} else {
+			try {
+				const response = await axios.post(
+					'/api/alert',
+					{
+						campground: {
+							id: campgroundValue.entityId,
+							name: campgroundValue.displayName,
+						},
+						checkinDate: checkInOutDates[0].format('YYYY-MM-DD'),
+						checkoutDate: checkInOutDates[1].format('YYYY-MM-DD'),
+						enabled: true,
+					},
+					{
+						withCredentials: true,
+					}
+				);
+
+				console.log('response: ', response);
+				setSeverity('success');
+				setMessage('Success! Your alert has been created.');
+				setSnackOpen(true);
+
+				handleClose();
+				history.push('/alerts');
+			} catch (err) {
+				console.log('err adding alert: ', err.response);
+
+				// show custom snackbar error
+				setSeverity('error');
+				setMessage(err.response.status + ' ' + err.response.statusText);
+				setSnackOpen(true);
+			}
 		}
 	};
 
@@ -114,8 +124,7 @@ const CreateAlertModal = ({
 						<DatePicker
 							label="Checkin"
 							value={checkInOutDates[0]}
-							onChange={(newValue) => {
-							}}
+							onChange={(newValue) => {}}
 							disabled
 							renderInput={(params) => (
 								<TextField
@@ -132,8 +141,7 @@ const CreateAlertModal = ({
 						<DatePicker
 							label="Checkout"
 							value={checkInOutDates[1]}
-							onChange={(newValue) => {
-							}}
+							onChange={(newValue) => {}}
 							disabled
 							renderInput={(params) => (
 								<TextField

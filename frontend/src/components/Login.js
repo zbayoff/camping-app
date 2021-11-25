@@ -35,7 +35,7 @@ const Login = ({ loginText = 'Login' }) => {
 
 	return (
 		<GoogleLogin
-			clientId="233067414245-6ao88jel7gisn84jaorp972u114br5a2.apps.googleusercontent.com"
+			clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
 			buttonText="Login"
 			onSuccess={onSuccessHandler}
 			onFailure={onFailureHandler}

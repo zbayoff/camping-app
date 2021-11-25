@@ -111,9 +111,9 @@ const Settings = () => {
 												setFrequencyNumberValue(event.target.value);
 											}}
 										>
+											<MenuItem value={1}>1</MenuItem>
+											<MenuItem value={5}>5</MenuItem>
 											<MenuItem value={10}>10</MenuItem>
-											<MenuItem value={20}>20</MenuItem>
-											<MenuItem value={30}>30</MenuItem>
 										</Select>
 									</FormControl>
 									<FormControl size="small">
@@ -126,7 +126,6 @@ const Settings = () => {
 												setFrequencyGranularityValue(event.target.value);
 											}}
 										>
-											<MenuItem value={'seconds'}>seconds</MenuItem>
 											<MenuItem value={'minutes'}>minutes</MenuItem>
 											<MenuItem value={'hours'}>hours</MenuItem>
 											<MenuItem value={'days'}>days</MenuItem>
@@ -135,8 +134,7 @@ const Settings = () => {
 								</Box>
 							) : (
 								<Box mb={1}>
-									Every:{' '}
-									{user.notificationSettings.frequencyNumber}{' '}
+									Every: {user.notificationSettings.frequencyNumber}{' '}
 									{user.notificationSettings.frequencyGranularity}
 								</Box>
 							)}

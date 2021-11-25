@@ -86,14 +86,11 @@ const Home = () => {
 		// fetch availabilites
 
 		try {
-			const { data } = await axios.post(
-				'/api/availableCampsites',
-				{
-					campgroundId: campgroundValue.entityId,
-					checkinDate: checkInOutDates[0],
-					checkoutDate: checkInOutDates[1],
-				}
-			);
+			const { data } = await axios.post('/api/availableCampsites', {
+				campgroundId: campgroundValue.entityId,
+				checkinDate: checkInOutDates[0],
+				checkoutDate: checkInOutDates[1],
+			});
 			console.log('available campsites: ', data);
 			setOpenAvailabilities(true);
 			if (data.length) {
@@ -162,9 +159,9 @@ const Home = () => {
 								height: '32px',
 							}}
 						></div>
-						{/* TODO: Validate dates are past NOW */}
 						<LocalizationProvider dateAdapter={AdapterDateFns}>
 							<DateRangePicker
+								disablePast
 								calendars={1}
 								value={checkInOutDates}
 								onChange={(newValue) => {
@@ -299,6 +296,24 @@ const Home = () => {
 						</Box>
 					) : null}
 
+					<>
+						<Button
+							variant="contained"
+							startIcon={<AddAlertIcon />}
+							style={{ marginLeft: 'auto' }}
+							onClick={() => setAddAlertModalOpen(true)}
+						>
+							Create an alert
+						</Button>
+						<CreateAlertModal
+							open={addAlertModalOpen}
+							handleClose={() => {
+								setAddAlertModalOpen(false);
+							}}
+							campgroundValue={campgroundValue}
+							checkInOutDates={checkInOutDates}
+						/>
+					</>
 					{availableCampsites.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>

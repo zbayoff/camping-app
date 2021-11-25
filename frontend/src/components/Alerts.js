@@ -13,6 +13,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditAlertModal from './EditAlertModal';
 import DeleteAlertModal from './DeleteAlertModal';
 
+import moment from 'moment';
+
 const Alerts = () => {
 	const [rows, setRows] = useState([]);
 
@@ -28,13 +30,10 @@ const Alerts = () => {
 		const fetchUserAlerts = async () => {
 			console.log('fetching userAlerts...');
 			try {
-				const response = await axios.get(
-					'/api/user/alerts',
-					{
-						withCredentials: true,
-					}
-				);
-				console.log('response: ', response)
+				const response = await axios.get('/api/user/alerts', {
+					withCredentials: true,
+				});
+				console.log('response: ', response);
 				if (response.data) {
 					const rows = response.data.map((row) => {
 						return {
@@ -91,8 +90,12 @@ const Alerts = () => {
 										<TableCell style={{ textTransform: 'capitalize' }}>
 											{row.campground.name}
 										</TableCell>
-										<TableCell align="right">{row.checkinDate}</TableCell>
-										<TableCell align="right">{row.checkoutDate}</TableCell>
+										<TableCell align="right">
+											{moment.utc(row.checkinDate).format('ddd, MMM D, YYYY')}
+										</TableCell>
+										<TableCell align="right">
+											{moment.utc(row.checkoutDate).format('ddd, MMM D, YYYY')}
+										</TableCell>
 										<TableCell align="right" scope="row">
 											{row.enabled ? 'Yes' : 'No'}
 										</TableCell>

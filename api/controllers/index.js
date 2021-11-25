@@ -1,10 +1,11 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const mongoose = require('mongoose');
 
 const User = require('../models/User');
 const Alert = require('../models/Alert');
+const EmailJob = require('../models/EmailJob');
 
 const { findUser, findAlerts } = require('../helpers/index');
-const { emailAgenda } = require('../agenda');
 
 const { ObjectId } = mongoose.Types;
 
@@ -51,18 +52,36 @@ async function addAlert(req, res) {
 		checkoutDate,
 		enabled,
 	});
-	await alert.save();
+	const newAlert = await alert.save();
 
-	const user = await findUser(userId);
+	// const user = await findUser(userId);
 
-	const job = emailAgenda.create('email user', {
-		to: user.email,
-		campsites: [],
-	});
+	// check if email job exists, if so, update with new alert, else, create new
+	// create new EmailJob
+	// have one emailJob per user that contains all the alerts for that user, when the job was last fired,
 
-	const newJob = await job.save();
+	const emailJob = await EmailJob.findOne({ userId });
 
-	await User.findByIdAndUpdate(userId, { alertJobId: newJob.attrs._id });
+	if (emailJob) {
+		console.log('emailJob already exists for this user. Updating...');
+		await EmailJob.findOneAndUpdate(
+			{ _id: emailJob._id },
+			{ alerts: [...emailJob.alerts, newAlert._id] },
+			{
+				new: true,
+			}
+		);
+	} else {
+		const newEmailJobToSave = new EmailJob({
+			userId: ObjectId(userId),
+			alerts: [alert],
+			// lastRunAt: { $date: '2021-11-22T10:24:18.092Z' },
+		});
+
+		const newEmailJob = await newEmailJobToSave.save();
+
+		await User.findByIdAndUpdate(userId, { emailJobId: newEmailJob._id });
+	}
 
 	res.send(alert);
 }
@@ -70,8 +89,26 @@ async function addAlert(req, res) {
 async function deleteAlert(req, res) {
 	try {
 		const { id } = req.params;
+		const { userId } = req;
 
 		await Alert.deleteOne({ _id: id });
+
+		// remove alert from emailJob
+		const emailJob = await EmailJob.findOne({
+			userId: ObjectId(userId),
+		});
+
+		const newAlerts = emailJob.alerts.filter((alertId) => {
+			return !alertId.equals(ObjectId(id));
+		});
+
+		// update and save
+		await EmailJob.findOneAndUpdate(
+			{
+				userId,
+			},
+			{ alerts: newAlerts }
+		);
 
 		res.status(200).send();
 	} catch (err) {
