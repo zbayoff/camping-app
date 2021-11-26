@@ -20,6 +20,18 @@ const { getAvailableCampsites } = require('./api/helpers/recreationGovApi');
 
 require('dotenv').config();
 
+mongoose
+	.connect(process.env.MONGO_CONNECTION_STRING, {
+		useNewUrlParser: true,
+	})
+	.then(() => {
+		console.log('Successfully connected to the database');
+	})
+	.catch((err) => {
+		console.log('Could not connect to the database. Exiting now...', err);
+		process.exit();
+	});
+
 const Ses = new Aws.SES({
 	accessKeyId: process.env.AWS_KEY,
 	secretAccessKey: process.env.AWS_SECRET,
@@ -36,22 +48,14 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 	data = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>
     <head>
     <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
-	<style>
-	@import url(https://fonts.googleapis.com/css?family=Open+Sans);
-	/*  Place your css style here  */
-	body {
-		font-family: 'Open Sans', sans-serif;
-	}
-	</style>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     </head>
     <body>
-
-	Emailing User ${user.firstName} at ${user.email} 
     
     ${availableCampgrounds
 			.map((availableCampground) => {
 				return `
-				<h2 style="text-transform:capitalize;">Alert for campground: ${
+				<h2 style="text-transform:capitalize; font-family: 'Roboto', sans-serif;">Available sites for campground: ${
 					availableCampground.name
 				}</h2>
 				${availableCampground.availabilities
@@ -60,18 +64,20 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 					)
 					.map((availability) => {
 						return `
-						<h3>Date: ${moment.utc(availability.date).format('MM-DD-YYYY')}</h3>
+						<h3 style="font-family: 'Roboto', sans-serif;">Date: ${moment
+							.utc(availability.date)
+							.format('MM-DD-YYYY')}</h3>
 						
-						<ul>
+						<ul style="font-family: 'Roboto', sans-serif;">
 						${availability.sites
 							.slice(0, 5)
 							.map((site) => {
-								return `<li><a href="https://www.recreation.gov/camping/campsites/${site.siteId}#site-availability" target="_blank">Loop ${site.loop}, site ${site.site}</a></li>`;
+								return `<li style="font-family: 'Roboto', sans-serif;"><a style="font-family: 'Roboto', sans-serif;" href="https://www.recreation.gov/camping/campsites/${site.siteId}#site-availability" target="_blank">Loop ${site.loop}, site ${site.site}</a></li>`;
 							})
 							.join('')}
 							${
 								availability.sites.length > 5
-									? `<li>See the rest of the campground availabilites <a href="https://www.recreation.gov/camping/campgrounds/${availableCampground.id}" target="_blank">here</a></li>`
+									? `<li style="font-family: 'Roboto', sans-serif;">See the rest of the campground availabilites <a href="https://www.recreation.gov/camping/campgrounds/${availableCampground.id}" target="_blank">here</a></li>`
 									: ''
 							}
 							</ul>`;
@@ -86,56 +92,46 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 	console.log('availableCampgrounds: ', availableCampgrounds);
 	console.log('emailing user....', user.email);
 
-	await fs.writeFile(`${user.email}-test.html`, data);
+	// await fs.writeFile(`${user.email}-test.html`, data);
 
-	await EmailJob.findByIdAndUpdate(emailJob._id, {
-		lastRunAt: Date.now(),
-	});
 	// console.log('emailJob: ', emailJob);
 
-	// return Ses.sendEmail({
-	// 	Source: process.env.FROM_EMAIL,
-	// 	Destination: {
-	// 		ToAddresses: [user.email],
-	// 	},
-	// 	Message: {
-	// 		Subject: {
-	// 			Data: subject,
-	// 		},
-	// 		Body: {
-	// 			Html: {
-	// 				Data: data,
-	// 				Charset: 'UTF-8',
-	// 			},
-	// 		},
-	// 	},
-	// })
-	// 	.promise()
-	// 	.then(() => {
-	// 		console.log('send email');
-
-	// 		// update EmailJob last Finished At
-	// 	})
-	// 	.catch((err) => {
-	// 		console.log(`error sending email:${err}`);
-	// 	});
+	return Ses.sendEmail({
+		Source: process.env.FROM_EMAIL,
+		Destination: {
+			ToAddresses: [user.email],
+		},
+		Message: {
+			Subject: {
+				Data: subject,
+			},
+			Body: {
+				Html: {
+					Data: data,
+					Charset: 'UTF-8',
+				},
+			},
+		},
+	})
+		.promise()
+		.then(async () => {
+			console.log('email sent!');
+			await EmailJob.findByIdAndUpdate(emailJob._id, {
+				lastRunAt: Date.now(),
+			});
+			// update EmailJob last Finished At
+		})
+		.catch((err) => {
+			console.error('error sending email:', err);
+		});
 };
 
-const availability = async () => {
+const availability = async (event, context) => {
 	// loop through emailJobs (which contain one or multiple alerts for a user)
 	// run getAvailableCampsites for each alert and store in variable, then email all to user, and update the emailJob with LastFinshedAt...
 
-	mongoose
-		.connect(process.env.MONGO_CONNECTION_STRING, {
-			useNewUrlParser: true,
-		})
-		.then(() => {
-			console.log('Successfully connected to the database');
-		})
-		.catch((err) => {
-			console.log('Could not connect to the database. Exiting now...', err);
-			process.exit();
-		});
+	// to optimize mongo db connection reuse for Lambda
+	context.callbackWaitsForEmptyEventLoop = false;
 
 	try {
 		const emailJobs = await findEmailJobs();
@@ -185,6 +181,8 @@ const availability = async () => {
 						} else {
 							console.log('no campsites found for this alert');
 						}
+					} else {
+						console.log('alert is not enabled. not fetching from Rec API.');
 					}
 				}
 
@@ -196,7 +194,7 @@ const availability = async () => {
 			}
 		}
 	} catch (err) {
-		console.log('err: ', err);
+		console.error('error running availability function: ', err);
 	}
 };
 

@@ -1,1 +1,4 @@
 serverless deploy --aws-profile serverless-campsite-profile
+
+deploy heroku: 
+git push zb-camping-app main

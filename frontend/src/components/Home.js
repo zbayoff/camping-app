@@ -105,7 +105,6 @@ const Home = () => {
 				'Error fetching campgrounds: ' + err.response.data.message + ' '
 			);
 			setSnackOpen(true);
-			// TODO display Error message
 		}
 	};
 
@@ -295,25 +294,6 @@ const Home = () => {
 							</List>
 						</Box>
 					) : null}
-
-					<>
-						<Button
-							variant="contained"
-							startIcon={<AddAlertIcon />}
-							style={{ marginLeft: 'auto' }}
-							onClick={() => setAddAlertModalOpen(true)}
-						>
-							Create an alert
-						</Button>
-						<CreateAlertModal
-							open={addAlertModalOpen}
-							handleClose={() => {
-								setAddAlertModalOpen(false);
-							}}
-							campgroundValue={campgroundValue}
-							checkInOutDates={checkInOutDates}
-						/>
-					</>
 					{availableCampsites.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>

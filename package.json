@@ -23,7 +23,6 @@
 	"scripts": {
 		"dev": "nodemon webapp.js",
 		"webapp": "node webapp.js",
-		"agenda": "node agendaApp.js",
 		"heroku-postbuild": "cd frontend && yarn install && yarn run build"
 	},
 	"devDependencies": {

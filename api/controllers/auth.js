@@ -7,18 +7,18 @@ const User = require('../models/User');
 
 const signJwtToken = (user, res) => {
 	const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-		expiresIn: '10 minutes',
+		expiresIn: '7 days',
 	});
 
 	res.cookie('token', jwtToken, {
 		httpOnly: true,
-		maxAge: 600000, // 10 minutes
+		maxAge: 600000000, // 7 days
 		path: '/',
 		secure: process.env.NODE_ENV === 'production',
 	});
 	res.cookie('secondToken', jwtToken, {
 		httpOnly: false,
-		maxAge: 600000, // 10 minutes
+		maxAge: 600000000, // 7 days
 		path: '/',
 		secure: process.env.NODE_ENV === 'production',
 	});

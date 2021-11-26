@@ -37,53 +37,65 @@ async function addUser(req, res) {
 }
 
 async function addAlert(req, res) {
-	// TODO: user only allowed to add up to 7 alerts. So must query DB to check how many alerts this user has.
-	// if > 7, send http error code, else, proceed to insert into DB
-	// TODO: check that user has already created an alert for this campground ID.
 	const { userId } = req;
 	const { campground, checkinDate, checkoutDate, enabled } = req.body;
-	const alert = new Alert({
+
+	const numExistingAlerts = await Alert.countDocuments({
 		userId: ObjectId(userId),
-		campground: {
-			id: campground.id,
-			name: campground.name,
-		},
-		checkinDate,
-		checkoutDate,
-		enabled,
 	});
-	const newAlert = await alert.save();
 
-	// const user = await findUser(userId);
+	const existingAlert = await Alert.countDocuments({
+		'campground.id': campground.id,
+	});
 
-	// check if email job exists, if so, update with new alert, else, create new
-	// create new EmailJob
-	// have one emailJob per user that contains all the alerts for that user, when the job was last fired,
-
-	const emailJob = await EmailJob.findOne({ userId });
-
-	if (emailJob) {
-		console.log('emailJob already exists for this user. Updating...');
-		await EmailJob.findOneAndUpdate(
-			{ _id: emailJob._id },
-			{ alerts: [...emailJob.alerts, newAlert._id] },
-			{
-				new: true,
-			}
-		);
-	} else {
-		const newEmailJobToSave = new EmailJob({
-			userId: ObjectId(userId),
-			alerts: [alert],
-			// lastRunAt: { $date: '2021-11-22T10:24:18.092Z' },
+	if (numExistingAlerts > 7) {
+		res.status(500).send({
+			status: 500,
+			message: 'You may only create 8 alerts max.',
 		});
+	} else if (existingAlert > 0) {
+		res.status(500).send({
+			status: 500,
+			message: 'You already have an alert for this campground.',
+		});
+	} else {
+		const alert = new Alert({
+			userId: ObjectId(userId),
+			campground: {
+				id: campground.id,
+				name: campground.name,
+			},
+			checkinDate,
+			checkoutDate,
+			enabled,
+		});
+		const newAlert = await alert.save();
 
-		const newEmailJob = await newEmailJobToSave.save();
+		const emailJob = await EmailJob.findOne({ userId });
 
-		await User.findByIdAndUpdate(userId, { emailJobId: newEmailJob._id });
+		if (emailJob) {
+			console.log('emailJob already exists for this user. Updating...');
+			await EmailJob.findOneAndUpdate(
+				{ _id: emailJob._id },
+				{ alerts: [...emailJob.alerts, newAlert._id] },
+				{
+					new: true,
+				}
+			);
+		} else {
+			const newEmailJobToSave = new EmailJob({
+				userId: ObjectId(userId),
+				alerts: [alert],
+				// lastRunAt: { $date: '2021-11-22T10:24:18.092Z' },
+			});
+
+			const newEmailJob = await newEmailJobToSave.save();
+
+			await User.findByIdAndUpdate(userId, { emailJobId: newEmailJob._id });
+		}
+
+		res.send(alert);
 	}
-
-	res.send(alert);
 }
 
 async function deleteAlert(req, res) {

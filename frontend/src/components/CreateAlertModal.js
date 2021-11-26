@@ -74,7 +74,7 @@ const CreateAlertModal = ({
 
 				// show custom snackbar error
 				setSeverity('error');
-				setMessage(err.response.status + ' ' + err.response.statusText);
+				setMessage('Error adding alert: ' + err.response.data.message + ' ');
 				setSnackOpen(true);
 			}
 		}
