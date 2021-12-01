@@ -46,6 +46,7 @@ async function addAlert(req, res) {
 
 	const existingAlert = await Alert.countDocuments({
 		'campground.id': campground.id,
+		userId: ObjectId(userId),
 	});
 
 	if (numExistingAlerts > 7) {

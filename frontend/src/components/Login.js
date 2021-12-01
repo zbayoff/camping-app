@@ -4,7 +4,7 @@ import GoogleLogin from 'react-google-login';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/authContext';
 
-const Login = ({ loginText = 'Login' }) => {
+const Login = ({ loginText = 'Login', className }) => {
 	const history = useHistory();
 	const location = useLocation();
 	const { setUser } = useContext(AuthContext);
@@ -42,6 +42,7 @@ const Login = ({ loginText = 'Login' }) => {
 			cookiePolicy={'single_host_origin'}
 			render={(renderProps) => (
 				<button
+					className={className}
 					disabled={renderProps.disabled}
 					onClick={renderProps.onClick}
 					type="button"

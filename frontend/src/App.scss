@@ -9,16 +9,53 @@ body {
 	background-image: url('./images/yosemite-bg-image.jpg');
 
 	.form-wrapper {
-		transform: translateY(200px);
+		transform: translateY(100px);
 		max-width: 700px;
 		margin: 0 auto;
+
+		@media (min-width: 768px) {
+			transform: translateY(200px);
+		}
+
+		.divider {
+			display: none;
+			@media (min-width: 768px) {
+				display: block;
+			}
+		}
 		.search-form-container {
 			display: flex;
+			flex-direction: column;
 			padding: 0px 15px;
 			border-radius: 15px;
-			align-items: center;
-			justify-content: center;
+
 			background-color: white;
+
+			.campground-text-input {
+				margin: 20px 8px 8px 8px;
+				min-width: 200px;
+
+				@media (min-width: 768px) {
+					margin: 10px 0 0 0;
+				}
+			}
+
+			.date-range-container {
+				margin: 0;
+			}
+
+			.search-button {
+				margin-bottom: 20px;
+				@media (min-width: 768px) {
+					margin-bottom: 8px;
+				}
+			}
+
+			@media (min-width: 768px) {
+				flex-direction: row;
+				align-items: center;
+				justify-content: center;
+			}
 		}
 		.suggestions-wrapper {
 			background-color: white;
@@ -28,6 +65,14 @@ body {
 			position: absolute;
 			width: 100%;
 			box-shadow: 0px 6px 20px rgb(0 0 0 / 20%);
+
+			max-height: 300px;
+			overflow-y: scroll;
+
+			@media (min-width: 768px) {
+				max-height: none;
+				overflow-y: auto;
+			}
 		}
 	}
 
@@ -37,6 +82,26 @@ body {
 		border-radius: 15px;
 		overflow-y: scroll;
 		max-height: 400px;
+	}
+
+	.empty-results {
+		flex-direction: column;
+		align-items: center;
+
+		.create-alert-button,
+		.login-button {
+			margin-left: 0;
+			margin-top: 20px;
+			@media (min-width: 768px) {
+				margin-top: 0;
+				margin-left: auto;
+			}
+		}
+
+		@media (min-width: 768px) {
+			flex-direction: row;
+			align-items: center;
+		}
 	}
 }
 

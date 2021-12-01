@@ -91,7 +91,6 @@ const Home = () => {
 				checkinDate: checkInOutDates[0],
 				checkoutDate: checkInOutDates[1],
 			});
-			console.log('available campsites: ', data);
 			setOpenAvailabilities(true);
 			if (data.length) {
 				setAvalableCampsites(data);
@@ -132,6 +131,7 @@ const Home = () => {
 						onSubmit={onSubmitHandler}
 					>
 						<TextField
+							className="campground-text-input"
 							id="standard-basic"
 							required
 							variant="standard"
@@ -146,11 +146,11 @@ const Home = () => {
 								shrink: true,
 							}}
 							ref={inputEl}
-							style={{ margin: '10px 0 0 0', minWidth: '200px' }}
 							onBlur={() => onBlurField()}
 							onFocus={() => onFocusFieldFirstName()}
 						/>
 						<div
+							className="divider"
 							style={{
 								alignSelf: 'center',
 								borderRight: '1px solid #DDDDDD',
@@ -160,6 +160,7 @@ const Home = () => {
 						></div>
 						<LocalizationProvider dateAdapter={AdapterDateFns}>
 							<DateRangePicker
+								className="date-range-container"
 								disablePast
 								calendars={1}
 								value={checkInOutDates}
@@ -208,6 +209,7 @@ const Home = () => {
 							/>
 						</LocalizationProvider>
 						<Button
+							className="search-button"
 							type="submit"
 							variant="contained"
 							color="primary"
@@ -218,13 +220,7 @@ const Home = () => {
 					</Box>
 					{campgroundSuggestions.length && openSuggestions ? (
 						<Box className="suggestions-wrapper">
-							<List
-							// sx={{
-							// 	width: '100%',
-							// 	maxWidth: 360,
-							// 	bgcolor: 'background.paper',
-							// }}
-							>
+							<List>
 								{campgroundSuggestions.map((suggestion) => {
 									return (
 										<ListItem
@@ -332,7 +328,7 @@ const Home = () => {
 						</Box>
 					) : !availableCampsites.length && openAvailabilities ? (
 						<Box
-							className="search-results"
+							className="search-results empty-results"
 							p={2}
 							style={{ display: 'flex', alignItems: 'center' }}
 						>
@@ -342,9 +338,9 @@ const Home = () => {
 							{user ? (
 								<>
 									<Button
+										className="create-alert-button"
 										variant="contained"
 										startIcon={<AddAlertIcon />}
-										style={{ marginLeft: 'auto' }}
 										onClick={() => setAddAlertModalOpen(true)}
 									>
 										Create an alert
@@ -359,9 +355,10 @@ const Home = () => {
 									/>
 								</>
 							) : (
-								<Box ml="auto">
-									<Login loginText="Login to create an alert" />
-								</Box>
+								<Login
+									className="login-button"
+									loginText="Login to create an alert"
+								/>
 							)}
 						</Box>
 					) : null}
