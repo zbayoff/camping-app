@@ -28,7 +28,7 @@ mongoose
 		console.log('Successfully connected to the database');
 	})
 	.catch((err) => {
-		console.log('Could not connect to the database. Exiting now...', err);
+		console.error('Could not connect to the database. Exiting now...', err);
 		process.exit();
 	});
 
@@ -93,8 +93,6 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 	console.log('emailing user....', user.email);
 
 	// await fs.writeFile(`${user.email}-test.html`, data);
-
-	// console.log('emailJob: ', emailJob);
 
 	return Ses.sendEmail({
 		Source: process.env.FROM_EMAIL,
