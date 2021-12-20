@@ -18,27 +18,19 @@ router.post('/alert', auth, mainController.addAlert);
 router.delete('/alert/:id', auth, mainController.deleteAlert);
 router.put('/alert/:id', auth, mainController.updateAlert);
 
-// router.get('/user/:id', auth, mainController.getUser);
-
 router.get('/user', auth, (req, res) => {
 	res.send(req.user);
 });
-
 router.get('/users', mainController.getUsers);
 router.post('/user', mainController.addUser);
-
 router.put('/user', auth, async (req, res) => {
-	// fetch all alerts associated with authenticated user
 	const { user } = req.body;
-
 	try {
-		const updatedUser = await User.findOneAndUpdate(
-			{ userId: req.userId },
+		const updatedUser = await User.findByIdAndUpdate(
+			{ _id: req.userId },
 			user,
-			{
-				new: true,
-			}
-		); // should both be ObjectId types
+			{ new: true }
+		);
 		res.send(updatedUser);
 	} catch (err) {
 		console.log('error updating user: ', err);
@@ -48,7 +40,6 @@ router.put('/user', auth, async (req, res) => {
 		});
 	}
 });
-
 router.get('/user/alerts', auth, async (req, res) => {
 	// fetch all alerts associated with authenticated user
 	try {
@@ -65,8 +56,6 @@ router.get('/user/alerts', auth, async (req, res) => {
 
 router.post('/availableCampsites', async (req, res, next) => {
 	const { campgroundId, checkinDate, checkoutDate } = req.body;
-
-	console.log('campgroundId: ', campgroundId);
 
 	try {
 		if (campgroundId) {

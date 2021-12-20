@@ -48,6 +48,7 @@ const Home = () => {
 
 	const inputEl = useRef(null);
 
+	// TODO: Add support for Permits from Rec API
 	const fetchCampgrounds = async (event) => {
 		console.log('fetching from rec api');
 		if (event.target.value) {

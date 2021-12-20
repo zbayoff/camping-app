@@ -29,6 +29,7 @@ const Alerts = () => {
 	useEffect(() => {
 		const fetchUserAlerts = async () => {
 			console.log('fetching userAlerts...');
+			// TODO: check for alerts with Checkout Date past current Date. If so, 'archive' them somehow. 
 			try {
 				const response = await axios.get('/api/user/alerts', {
 					withCredentials: true,
