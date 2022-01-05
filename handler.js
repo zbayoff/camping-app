@@ -160,9 +160,12 @@ const availability = async (event, context) => {
 				for (const alertId of emailJob.alerts) {
 					const alert = await findAlertsById(alertId);
 
-					if (alert.enabled) {
+					if (
+						alert.enabled &&
+						moment.utc().isBefore(moment.utc(alert.checkoutDate))
+					) {
 						console.log(
-							`hit rec api for user: ${user.firstName} for campground: ${alert.campground.name} `
+							`hit Rec.gov API for user: ${user.firstName} (${user.email}) for campground: ${alert.campground.name} `
 						);
 						const campsites = await getAvailableCampsites(
 							alert.campground.id,
@@ -177,10 +180,12 @@ const availability = async (event, context) => {
 								availabilities: campsites,
 							});
 						} else {
-							console.log('no campsites found for this alert');
+							console.log('no availables campsites found for this alert');
 						}
 					} else {
-						console.log('alert is not enabled. not fetching from Rec API.');
+						console.log(
+							'alert is not enabled or alert checkout date has passed. not fetching from Rec API.'
+						);
 					}
 				}
 
@@ -196,11 +201,11 @@ const availability = async (event, context) => {
 	}
 };
 
-// (async () => {
-// 	// IIFE to give access to async/await
-// 	await availability();
-// 	process.exit();
-// })();
+(async () => {
+	// IIFE to give access to async/await
+	await availability(null, {});
+	process.exit();
+})();
 
 module.exports = {
 	availability,

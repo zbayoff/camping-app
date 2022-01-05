@@ -10,7 +10,6 @@ const Logout = () => {
 	const { setUser } = useContext(AuthContext);
 
 	const onLogoutSuccessHandler = async (response) => {
-		console.log('response: ', response);
 		history.replace('/');
 		
 		const res = await axios.delete('/auth/google');

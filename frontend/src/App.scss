@@ -8,6 +8,15 @@ body {
 	background-size: cover;
 	background-image: url('./images/yosemite-bg-image.jpg');
 
+	.header-wrapper {
+		transform: translateY(75px);
+		margin: 0 auto;
+
+		@media (min-width: 768px) {
+			transform: translateY(150px);
+		}
+	}
+
 	.form-wrapper {
 		transform: translateY(100px);
 		max-width: 700px;
@@ -70,7 +79,12 @@ body {
 			overflow-y: scroll;
 
 			@media (min-width: 768px) {
-				max-height: none;
+				max-height: 300px;
+				overflow-y: auto;
+			}
+
+			@media (min-width: 992px) {
+				max-height: 350px;
 				overflow-y: auto;
 			}
 		}

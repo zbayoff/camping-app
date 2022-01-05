@@ -52,7 +52,6 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 				}
 			);
 
-			console.log('response: ', response);
 			setSeverity('success');
 			setMessage('Success! Your alert has been updated.');
 			setSnackOpen(true);

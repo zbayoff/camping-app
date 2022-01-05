@@ -62,7 +62,6 @@ const CreateAlertModal = ({
 					}
 				);
 
-				console.log('response: ', response);
 				setSeverity('success');
 				setMessage('Success! Your alert has been created.');
 				setSnackOpen(true);

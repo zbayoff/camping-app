@@ -28,8 +28,6 @@ const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
 					withCredentials: true,
 				}
 			);
-
-			console.log('response: ', response);
 			setSeverity('success');
 			setMessage('Success! Your alert has been deleted.');
 			setSnackOpen(true);

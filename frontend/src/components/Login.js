@@ -10,7 +10,6 @@ const Login = ({ loginText = 'Login', className }) => {
 	const { setUser } = useContext(AuthContext);
 
 	const onSuccessHandler = async (response) => {
-		console.log('response: ', response);
 		const { data } = await axios.post('/auth/google', {
 			token: response.tokenId,
 		});

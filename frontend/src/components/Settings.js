@@ -56,7 +56,6 @@ const Settings = () => {
 				}
 			);
 
-			console.log('response: ', response);
 			setSeverity('success');
 			setMessage('Success! Your settings have been updated.');
 			setSnackOpen(true);

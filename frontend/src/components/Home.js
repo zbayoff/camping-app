@@ -14,6 +14,7 @@ import DateRangePicker from '@mui/lab/DateRangePicker';
 import {
 	Avatar,
 	Button,
+	IconButton,
 	Link,
 	List,
 	ListItem,
@@ -21,6 +22,7 @@ import {
 	ListItemText,
 	Typography,
 } from '@mui/material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SearchIcon from '@mui/icons-material/Search';
 import AddAlertIcon from '@mui/icons-material/AddAlert';
 import { SvgIcon } from '@mui/material';
@@ -56,6 +58,7 @@ const Home = () => {
 				const { data } = await axios.get(
 					`https://www.recreation.gov/api/search/suggest?q=${event.target.value}&geocoder=true&inventory_type=campground`
 				);
+				console.log('data: ', data);
 				if (data.inventory_suggestions && data.inventory_suggestions.length) {
 					setCampgroundSuggestions(data.inventory_suggestions);
 				}
@@ -80,7 +83,7 @@ const Home = () => {
 		delayedQuery(event);
 	};
 
-	const delayedQuery = useMemo(() => _.throttle(fetchCampgrounds, 1000), []);
+	const delayedQuery = useMemo(() => _.debounce(fetchCampgrounds, 500), []);
 
 	const onSubmitHandler = async (event) => {
 		event.preventDefault();
@@ -111,7 +114,7 @@ const Home = () => {
 	const [checkInOutDates, setCheckInOutDates] = React.useState([null, null]);
 
 	const onBlurField = () => {
-		setOpenSuggestions(false);
+		// setOpenSuggestions(false);
 	};
 
 	const onFocusFieldFirstName = () => {
@@ -121,6 +124,25 @@ const Home = () => {
 	return (
 		<div className="Home">
 			<div style={{ padding: '0 15px', width: '100%', height: '100%' }}>
+				<Box className="header-wrapper">
+					<Typography
+						align="center"
+						color="primary"
+						component="h1"
+						variant="h3"
+					>
+						Find Your Next Campsite
+					</Typography>
+					<Typography
+						align="center"
+						color="primary"
+						component="h3"
+						variant="body2"
+						sx={{textTransform: "uppercase"}}
+					>
+						Applicable for national parks, lakeshores &amp; forests
+					</Typography>
+				</Box>
 				<Box className="form-wrapper" style={{ position: 'relative' }}>
 					<Box
 						component="form"
@@ -225,8 +247,19 @@ const Home = () => {
 								{campgroundSuggestions.map((suggestion) => {
 									return (
 										<ListItem
+											secondaryAction={
+												<IconButton edge="end" aria-label="open in new window">
+													<Link
+														target="_blank"
+														rel="noreferrer"
+														href={`https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`}
+													>
+														<OpenInNewIcon />
+													</Link>
+												</IconButton>
+											}
 											key={suggestion.entity_id}
-											style={{ cursor: 'pointer' }}
+											style={{ cursor: 'pointer', height: '90px' }}
 											onMouseDown={(e) => e.preventDefault()} // to allow onClick to fire before onBlur
 											onClick={() => {
 												// setCampgroundSuggestions([]);
@@ -248,11 +281,6 @@ const Home = () => {
 												},
 											}}
 										>
-											{/* <a
-												target="_blank"
-												rel="noreferrer"
-												href={`https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`}
-											> */}
 											<ListItemAvatar>
 												<Avatar sx={{ bgcolor: 'primary.main' }}>
 													<SvgIcon
@@ -278,13 +306,21 @@ const Home = () => {
 															: null}
 													</Typography>
 												}
-
-												// {`${suggestion.parent_name} ${
-												// 	suggestion.city ? `| Near ${suggestion.city} ` : null
-												// }`}
 											/>
-
-											{/* </a> */}
+											{suggestion.preview_image_url ? (
+												<Box sx={{ display: 'flex', alignItems: 'center' }}>
+													<img
+														alt="campground preview"
+														style={{
+															borderRadius: '10px',
+															height: '70px',
+															objectFit: 'cover',
+														}}
+														width="100"
+														src={suggestion.preview_image_url}
+													/>
+												</Box>
+											) : null}
 										</ListItem>
 									);
 								})}
@@ -294,7 +330,7 @@ const Home = () => {
 					{availableCampsites.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>
-								<h3 style={{ margin: 0 }}>Campsite Availabilities: </h3>
+								<h3 style={{ margin: 0 }}>Campsites Available! </h3>
 								<p style={{ margin: 0 }}>
 									Reserve on{' '}
 									<Link
@@ -302,7 +338,7 @@ const Home = () => {
 										rel="noreferrer"
 										href={`https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`}
 									>
-										Recreation.Gov!
+										Recreation.Gov
 									</Link>
 								</p>
 								<List>
@@ -334,8 +370,9 @@ const Home = () => {
 							style={{ display: 'flex', alignItems: 'center' }}
 						>
 							<Typography>
-								No available campsites for the selected dates.
+								Currently no available campsites for the selected dates. <br /> Create an alert to be notified of an opening.
 							</Typography>
+						
 							{user ? (
 								<>
 									<Button

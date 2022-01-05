@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
-// const helmet = require('helmet');
+const helmet = require('helmet');
 
 // const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -15,7 +15,11 @@ dotenv.config('./.env');
 const webApp = express();
 const webAppPort = process.env.PORT || 5000;
 
-// webApp.use(helmet());
+webApp.use(
+	helmet({
+		contentSecurityPolicy: false,
+	})
+);
 webApp.use(morgan('tiny'));
 webApp.use(cookieParser());
 
