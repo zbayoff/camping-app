@@ -11,7 +11,7 @@ const Logout = () => {
 
 	const onLogoutSuccessHandler = async (response) => {
 		history.replace('/');
-		
+
 		const res = await axios.delete('/auth/google');
 		console.log('res: ', res);
 
@@ -23,8 +23,6 @@ const Logout = () => {
 		setUser(null);
 		// refresh the page
 		window.location.reload();
-
-		
 	};
 
 	const onFailureHandler = () => {
@@ -33,7 +31,7 @@ const Logout = () => {
 
 	return (
 		<GoogleLogout
-			clientId="233067414245-il4rkpad53ot27kgln3pe3qbimuu6gvj.apps.googleusercontent.com"
+			clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
 			buttonText="Logout"
 			onLogoutSuccess={onLogoutSuccessHandler}
 			onLogoutFailure={onFailureHandler}
