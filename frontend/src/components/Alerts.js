@@ -17,6 +17,8 @@ import { grey } from '@mui/material/colors';
 import moment from 'moment';
 import { Tooltip } from '@mui/material';
 
+import Settings from '../components/Settings';
+
 const Alerts = () => {
 	const [rows, setRows] = useState([]);
 
@@ -71,8 +73,13 @@ const Alerts = () => {
 
 	return (
 		<div>
-			<h1>Alerts</h1>
-			<h4>You may only create 8 alerts, max. Delete old alerts to make room.</h4>
+			<h1>Campsite Alerts</h1>
+			<h4>
+				You may only create 8 alerts, max. Delete old alerts to make room.
+			</h4>
+
+			<Settings />
+
 			<div style={{ height: 400, width: '100%' }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -92,9 +99,16 @@ const Alerts = () => {
 								)
 								.map((row) => {
 									return (
-										<Tooltip placement="top" arrow title={moment
-											.utc(row.checkoutDate)
-											.isBefore(moment.utc()) ? 'Alert has expired' : ''} key={row.id}>
+										<Tooltip
+											placement="top"
+											arrow
+											title={
+												moment.utc(row.checkoutDate).isBefore(moment.utc())
+													? 'Alert has expired'
+													: ''
+											}
+											key={row.id}
+										>
 											<TableRow
 												sx={{
 													bgcolor: moment

@@ -21,6 +21,8 @@ const Logout = () => {
 		Cookies.remove('secondToken');
 
 		setUser(null);
+		// refresh the page
+		window.location.reload();
 
 		
 	};
