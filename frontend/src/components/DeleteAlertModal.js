@@ -66,7 +66,7 @@ const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
 
 				<DialogContent>
 					<DialogContentText>
-						Delete alert for campground: {alert ? alert.campground.name : null}
+						Delete alert for campground: {alert ? alert.entity.name : null}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>

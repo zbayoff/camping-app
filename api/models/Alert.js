@@ -2,17 +2,19 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const CampgroundSchema = new Schema(
+// campground or permit
+const EntitySchema = new Schema(
 	{
 		id: Number,
 		name: String,
+		type: String,
 	},
 	{ _id: false }
 );
 
 const alertSchema = new Schema({
 	userId: mongoose.Schema.Types.ObjectId,
-	campground: { type: CampgroundSchema },
+	entity: { type: EntitySchema },
 	checkinDate: Date,
 	checkoutDate: Date,
 	enabled: Boolean,

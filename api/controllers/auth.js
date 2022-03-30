@@ -61,7 +61,7 @@ const auth = async (req, res) => {
 					picture,
 					notificationSettings: {
 						frequencyNumber: 10,
-						frequencyGranularity: 'minute',
+						frequencyGranularity: 'minutes',
 					},
 				});
 

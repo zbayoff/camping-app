@@ -82,6 +82,67 @@ const getAvailableCampsites = async (campground, startDate, endDate) => {
 	return allCampsites.flat(Infinity);
 };
 
+const checkPermits = (response, startDate, endDate) => {
+	const availablePermits = Object.values(
+		Object.values(response.data.payload.availability)[0].date_availability
+	)
+		.map((date, index) => {
+			const keyDate = Object.keys(
+				Object.values(response.data.payload.availability)[0].date_availability
+			);
+
+			return {
+				...date,
+				date: keyDate[index],
+			};
+		})
+		.filter((date) => {
+			return date.remaining > 0 &&
+				moment(date.date).isBetween(startDate, endDate, undefined, '[]')
+				? date
+				: null;
+		});
+
+	return availablePermits;
+};
+
+const getAvailablePermits = async (permit, startDate, endDate) => {
+	const format = 'YYYY-MM-DD';
+
+	const start = moment(startDate);
+	const end = moment(endDate);
+
+	const startMonths = [];
+	// get the start of every month between and including startDate and endDate
+	while (
+		start.isBefore(end) ||
+		start.clone().format('M') === end.clone().format('M')
+	) {
+		startMonths.push(moment(start).startOf('month').format(format));
+		start.add(1, 'month');
+	}
+
+	const promises = startMonths.map((month) => {
+		const apiURL = `https://www.recreation.gov/api/permits/${permit}/availability/month?start_date=${month}T00%3A00%3A00.000Z`;
+
+		return new Promise((resolve, reject) => {
+			Axios.get(apiURL)
+				.then((response) => {
+					resolve(checkPermits(response, startDate, endDate));
+				})
+				.catch(function (error) {
+					console.log(error);
+					reject(error);
+				});
+		});
+	});
+
+	const allPermits = await Promise.all(promises);
+
+	return allPermits.flat(Infinity);
+};
+
 module.exports = {
 	getAvailableCampsites,
+	getAvailablePermits,
 };

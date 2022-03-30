@@ -87,7 +87,7 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 				onSubmit={onSubmitHandler}
 			>
 				<DialogTitle>
-					Edit Alert for {alert ? alert.campground.name : null}
+					Edit Alert for {alert ? alert.entity.name : null}
 				</DialogTitle>
 
 				<DialogContent>

@@ -49,9 +49,10 @@ const CreateAlertModal = ({
 				const response = await axios.post(
 					'/api/alert',
 					{
-						campground: {
+						entity: {
 							id: campgroundValue.entityId,
 							name: campgroundValue.displayName,
+							type: campgroundValue.entityType,
 						},
 						checkinDate: checkInOutDates[0].format('YYYY-MM-DD'),
 						checkoutDate: checkInOutDates[1].format('YYYY-MM-DD'),

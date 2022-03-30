@@ -41,7 +41,11 @@ const Alerts = () => {
 					const rows = response.data.map((row) => {
 						return {
 							id: row._id,
-							campground: { id: row.campground.id, name: row.campground.name },
+							entity: {
+								id: row.entity.id,
+								name: row.entity.name,
+								type: row.entity.type,
+							},
 							checkinDate: row.checkinDate,
 							checkoutDate: row.checkoutDate,
 							enabled: row.enabled,
@@ -85,7 +89,8 @@ const Alerts = () => {
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>
 							<TableRow>
-								<TableCell align="left">Campground</TableCell>
+								<TableCell align="left">Entity</TableCell>
+								<TableCell align="right">Type</TableCell>
 								<TableCell align="right">Checkin</TableCell>
 								<TableCell align="right">Checkout</TableCell>
 								<TableCell align="right">Enabled</TableCell>
@@ -119,8 +124,9 @@ const Alerts = () => {
 												}}
 											>
 												<TableCell style={{ textTransform: 'capitalize' }}>
-													{row.campground.name}
+													{row.entity.name}
 												</TableCell>
+												<TableCell align="right" style={{ textTransform: 'capitalize' }}>{row.entity.type}</TableCell>
 												<TableCell align="right">
 													{moment
 														.utc(row.checkinDate)

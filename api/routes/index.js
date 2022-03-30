@@ -1,7 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
-
-const { ObjectId } = mongoose.Types;
 
 const Alert = require('../models/Alert');
 
@@ -10,7 +7,10 @@ const auth = require('../middleware/checkAuth');
 const router = express.Router();
 
 const mainController = require('../controllers/index');
-const { getAvailableCampsites } = require('../helpers/recreationGovApi');
+const {
+	getAvailableCampsites,
+	getAvailablePermits,
+} = require('../helpers/recreationGovApi');
 const User = require('../models/User');
 
 router.get('/alerts', auth, mainController.getAlerts);
@@ -54,24 +54,48 @@ router.get('/user/alerts', auth, async (req, res) => {
 	}
 });
 
-router.post('/availableCampsites', async (req, res, next) => {
-	const { campgroundId, checkinDate, checkoutDate } = req.body;
+router.post('/availableCampsites', async (req, res) => {
+	const { id, checkinDate, checkoutDate } = req.body;
+
+	console.log('id: ', id);
 
 	try {
-		if (campgroundId) {
+		if (id) {
 			const campsites = await getAvailableCampsites(
-				campgroundId,
+				id,
 				checkinDate,
 				checkoutDate
 			);
 			res.json(campsites);
 		} else {
 			throw new Error(
-				'Campground not found. Please choose a campground from the selected list.'
+				'Entity not found. Please choose an entity from the selected list.'
 			);
 		}
 	} catch (err) {
 		console.log('err getAvailableCampsites: ', err);
+		res.status(err.status || 500).send({
+			status: err.status || 500,
+			message: err.message || 'Internal Server Error',
+		});
+		// next(err);
+	}
+});
+
+router.post('/availablePermits', async (req, res) => {
+	const { id, checkinDate, checkoutDate } = req.body;
+
+	try {
+		if (id) {
+			const permits = await getAvailablePermits(id, checkinDate, checkoutDate);
+			res.json(permits);
+		} else {
+			throw new Error(
+				'Campground not found. Please choose a campground from the selected list.'
+			);
+		}
+	} catch (err) {
+		console.log('err getAvailablePermits: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,
 			message: err.message || 'Internal Server Error',

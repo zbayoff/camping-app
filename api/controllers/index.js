@@ -38,14 +38,16 @@ async function addUser(req, res) {
 
 async function addAlert(req, res) {
 	const { userId } = req;
-	const { campground, checkinDate, checkoutDate, enabled } = req.body;
+	const { entity, checkinDate, checkoutDate, enabled } = req.body;
 
 	const numExistingAlerts = await Alert.countDocuments({
 		userId: ObjectId(userId),
 	});
 
+	console.log('entity: ', entity);
+
 	const existingAlert = await Alert.countDocuments({
-		'campground.id': campground.id,
+		'entity.id': entity.id,
 		userId: ObjectId(userId),
 	});
 
@@ -57,14 +59,15 @@ async function addAlert(req, res) {
 	} else if (existingAlert > 0) {
 		res.status(500).send({
 			status: 500,
-			message: 'You already have an alert for this campground.',
+			message: 'You already have an alert for this entity.',
 		});
 	} else {
 		const alert = new Alert({
 			userId: ObjectId(userId),
-			campground: {
-				id: campground.id,
-				name: campground.name,
+			entity: {
+				id: entity.id,
+				name: entity.name,
+				type: entity.type,
 			},
 			checkinDate,
 			checkoutDate,

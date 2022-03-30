@@ -37,12 +37,15 @@ const Home = () => {
 	const [campgroundValue, setCampgroundValue] = useState({
 		displayName: '',
 		entityId: '',
+		entityType: '',
 	});
 	const [campgroundSuggestions, setCampgroundSuggestions] = useState([]);
 	const [availableCampsites, setAvalableCampsites] = useState([]);
+	const [availablePermits, setAvailablePermits] = useState([]);
 	const [openSuggestions, setOpenSuggestions] = useState(false);
 	const [openAvailabilities, setOpenAvailabilities] = useState(false);
 	const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
+	const [entityType, setEntityType] = useState('');
 
 	const { user } = useContext(AuthContext);
 
@@ -56,9 +59,8 @@ const Home = () => {
 		if (event.target.value) {
 			try {
 				const { data } = await axios.get(
-					`https://www.recreation.gov/api/search/suggest?q=${event.target.value}&geocoder=true&inventory_type=campground`
+					`https://www.recreation.gov/api/search/suggest?q=${event.target.value}&geocoder=true&inventory_type=campground&inventory_type=permit`
 				);
-				console.log('data: ', data);
 				if (data.inventory_suggestions && data.inventory_suggestions.length) {
 					setCampgroundSuggestions(data.inventory_suggestions);
 				}
@@ -77,7 +79,11 @@ const Home = () => {
 	};
 
 	const onCampgroundChangeHandler = (event) => {
-		setCampgroundValue({ displayName: event.target.value, entityId: '' });
+		setCampgroundValue({
+			displayName: event.target.value,
+			entityId: '',
+			entityType: '',
+		});
 		setOpenSuggestions(true);
 		setOpenAvailabilities(false);
 		delayedQuery(event);
@@ -90,16 +96,31 @@ const Home = () => {
 		// fetch availabilites
 
 		try {
-			const { data } = await axios.post('/api/availableCampsites', {
-				campgroundId: campgroundValue.entityId,
+			const apiUrl =
+				campgroundValue.entityType === 'permit'
+					? '/api/availablePermits'
+					: '/api/availableCampsites';
+
+			const { data } = await axios.post(apiUrl, {
+				id: campgroundValue.entityId,
 				checkinDate: checkInOutDates[0],
 				checkoutDate: checkInOutDates[1],
+				entityType: campgroundValue.entityType,
 			});
 			setOpenAvailabilities(true);
+
+			setEntityType(campgroundValue.entityType);
+
 			if (data.length) {
-				setAvalableCampsites(data);
+				if (campgroundValue.entityType === 'campground') {
+					setAvalableCampsites(data);
+				}
+				if (campgroundValue.entityType === 'permit') {
+					setAvailablePermits(data);
+				}
 			} else {
 				setAvalableCampsites([]);
+				setAvailablePermits([]);
 			}
 		} catch (err) {
 			console.log('Error fetching available campsites: ', err.response);
@@ -138,7 +159,7 @@ const Home = () => {
 						color="primary"
 						component="h3"
 						variant="body2"
-						sx={{textTransform: "uppercase"}}
+						sx={{ textTransform: 'uppercase' }}
 					>
 						Applicable for national parks, lakeshores &amp; forests
 					</Typography>
@@ -269,6 +290,7 @@ const Home = () => {
 												setCampgroundValue({
 													displayName: suggestion.name.toLowerCase(),
 													entityId: suggestion.entity_id,
+													entityType: suggestion.entity_type,
 												});
 												setOpenSuggestions(false);
 												setOpenAvailabilities(false);
@@ -327,39 +349,72 @@ const Home = () => {
 							</List>
 						</Box>
 					) : null}
-					{availableCampsites.length && openAvailabilities ? (
+
+					{(availableCampsites.length || availablePermits.length) &&
+					openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>
-								<h3 style={{ margin: 0 }}>Campsites Available! </h3>
+								<h3 style={{ margin: 0 }}>
+									{entityType === 'campground' ? 'Campsites' : 'Permits'}{' '}
+									Available!{' '}
+								</h3>
 								<p style={{ margin: 0 }}>
 									Reserve on{' '}
 									<Link
 										target="_blank"
 										rel="noreferrer"
-										href={`https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`}
+										href={
+											entityType === 'campground'
+												? `https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`
+												: `https://www.recreation.gov/permits/${
+														campgroundValue.entityId
+												  }/registration/detailed-availability?date=${moment(
+														checkInOutDates[0]
+												  ).format('YYYY-MM-DD')}`
+										}
 									>
 										Recreation.Gov
 									</Link>
 								</p>
 								<List>
-									{availableCampsites
-										.sort(
-											(a, b) =>
-												moment(a.date).valueOf() - moment(b.date).valueOf()
-										)
-										.map((campsite, index) => {
-											return (
-												<ListItem disablePadding key={index}>
-													<ListItemText>
-														{campsite.sites.length}{' '}
-														{campsite.sites.length > 1
-															? 'availabilities'
-															: 'available'}{' '}
-														for: {moment(campsite.date).format('MM-DD-YYYY')}
-													</ListItemText>
-												</ListItem>
-											);
-										})}
+									{entityType === 'permit'
+										? availablePermits
+												.sort(
+													(a, b) =>
+														moment(a.date).valueOf() - moment(b.date).valueOf()
+												)
+												.map((permit, index) => {
+													return (
+														<ListItem disablePadding key={index}>
+															<ListItemText>
+																{permit.remaining}{' '}
+																{permit.remaining > 1
+																	? 'permits available'
+																	: 'permit available'}{' '}
+																for: {moment(permit.date).format('MM-DD-YYYY')}
+															</ListItemText>
+														</ListItem>
+													);
+												})
+										: availableCampsites
+												.sort(
+													(a, b) =>
+														moment(a.date).valueOf() - moment(b.date).valueOf()
+												)
+												.map((campsite, index) => {
+													return (
+														<ListItem disablePadding key={index}>
+															<ListItemText>
+																{campsite.sites.length}{' '}
+																{campsite.sites.length > 1
+																	? 'availabilities'
+																	: 'available'}{' '}
+																for:{' '}
+																{moment(campsite.date).format('MM-DD-YYYY')}
+															</ListItemText>
+														</ListItem>
+													);
+												})}
 								</List>
 							</List>
 						</Box>
@@ -370,9 +425,10 @@ const Home = () => {
 							style={{ display: 'flex', alignItems: 'center' }}
 						>
 							<Typography>
-								Currently no available campsites for the selected dates. <br /> Create an alert to be notified of an opening.
+								Currently no available campsites/permits for the selected dates. <br />{' '}
+								Create an alert to be notified of an opening.
 							</Typography>
-						
+
 							{user ? (
 								<>
 									<Button

@@ -1,11 +1,11 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable no-console */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 const Aws = require('aws-sdk');
 const moment = require('moment');
 const mongoose = require('mongoose');
-const fs = require('fs').promises;
 
 const {
 	findUser,
@@ -131,73 +131,75 @@ const availability = async (event, context) => {
 	// to optimize mongo db connection reuse for Lambda
 	context.callbackWaitsForEmptyEventLoop = false;
 
-	try {
-		const emailJobs = await findEmailJobs();
+	const emailJobs = await findEmailJobs();
 
-		for (const emailJob of emailJobs) {
-			const user = await findUser(emailJob.userId);
+	for (const emailJob of emailJobs) {
+		const user = await findUser(emailJob.userId);
 
-			const availableCampgrounds = [];
+		const availableCampgrounds = [];
 
-			console.log('-------------------------------------------------');
+		console.log('-------------------------------------------------');
 
-			// don't query Rec API if last email sent to user is not past their specified frequency
-			// but need to deal with case when user first creates EmailJob and emailJob.lastRunAt is ""
-			if (
-				!emailJob.lastRunAt ||
-				(emailJob.lastRunAt &&
-					moment
-						.utc()
-						.isAfter(
-							moment
-								.utc(emailJob.lastRunAt)
-								.add(
-									user.notificationSettings.frequencyNumber,
-									user.notificationSettings.frequencyGranularity
-								)
-						))
-			) {
-				for (const alertId of emailJob.alerts) {
-					const alert = await findAlertsById(alertId);
+		// don't query Rec API if last email sent to user is not past their specified frequency
+		// but need to deal with case when user first creates EmailJob and emailJob.lastRunAt is ""
+		if (
+			!emailJob.lastRunAt ||
+			(emailJob.lastRunAt &&
+				moment
+					.utc()
+					.isAfter(
+						moment
+							.utc(emailJob.lastRunAt)
+							.add(
+								user.notificationSettings.frequencyNumber,
+								user.notificationSettings.frequencyGranularity
+							)
+					))
+		) {
+			for (const alertId of emailJob.alerts) {
+				const alert = await findAlertsById(alertId);
 
-					if (
-						alert.enabled &&
-						moment.utc().isBefore(moment.utc(alert.checkoutDate))
-					) {
-						console.log(
-							`hit Rec.gov API for user: ${user.firstName} (${user.email}) for campground: ${alert.campground.name} `
-						);
+				if (
+					alert.enabled &&
+					moment.utc().isBefore(moment.utc(alert.checkoutDate))
+				) {
+					console.log(
+						`hit Rec.gov API for user: ${user.firstName} (${user.email}) for ${alert.entity.type}: ${alert.entity.name} `
+					);
+					try {
 						const campsites = await getAvailableCampsites(
-							alert.campground.id,
+							alert.entity.id,
 							alert.checkinDate,
 							alert.checkoutDate
 						);
 
 						if (campsites.length) {
 							availableCampgrounds.push({
-								id: alert.campground.id,
-								name: alert.campground.name,
+								id: alert.entity.id,
+								name: alert.entity.name,
 								availabilities: campsites,
 							});
 						} else {
-							console.log('no availables campsites found for this alert');
+							console.log(
+								`no available ${alert.entity.type}s found for this alert`
+							);
 						}
-					} else {
-						console.log(
-							'alert is not enabled or alert checkout date has passed. not fetching from Rec API.'
-						);
+					} catch (err) {
+						console.log('err getAvailableCampsites: ', err);
 					}
+				} else {
+					console.log(
+						'alert is not enabled or alert checkout date has passed. not fetching from Rec API.'
+					);
 				}
-
-				if (availableCampgrounds.length) {
-					await sendEmail(availableCampgrounds, user, emailJob);
-				}
-			} else {
-				console.log('currently not past user frequency');
 			}
+
+			if (availableCampgrounds.length) {
+				await sendEmail(availableCampgrounds, user, emailJob);
+			}
+		} else {
+			console.log('currently not past user frequency');
 		}
-	} catch (err) {
-		console.error('error running availability function: ', err);
 	}
 };
 
