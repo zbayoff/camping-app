@@ -40,8 +40,7 @@ const Home = () => {
 		entityType: '',
 	});
 	const [campgroundSuggestions, setCampgroundSuggestions] = useState([]);
-	const [availableCampsites, setAvalableCampsites] = useState([]);
-	const [availablePermits, setAvailablePermits] = useState([]);
+	const [availableEntities, setAvailableEntities] = useState([]);
 	const [openSuggestions, setOpenSuggestions] = useState(false);
 	const [openAvailabilities, setOpenAvailabilities] = useState(false);
 	const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
@@ -55,7 +54,6 @@ const Home = () => {
 
 	// TODO: Add support for Permits from Rec API
 	const fetchCampgrounds = async (event) => {
-		console.log('fetching from rec api');
 		if (event.target.value) {
 			try {
 				const { data } = await axios.get(
@@ -112,15 +110,9 @@ const Home = () => {
 			setEntityType(campgroundValue.entityType);
 
 			if (data.length) {
-				if (campgroundValue.entityType === 'campground') {
-					setAvalableCampsites(data);
-				}
-				if (campgroundValue.entityType === 'permit') {
-					setAvailablePermits(data);
-				}
+				setAvailableEntities(data);
 			} else {
-				setAvalableCampsites([]);
-				setAvailablePermits([]);
+				setAvailableEntities([]);
 			}
 		} catch (err) {
 			console.log('Error fetching available campsites: ', err.response);
@@ -350,8 +342,7 @@ const Home = () => {
 						</Box>
 					) : null}
 
-					{(availableCampsites.length || availablePermits.length) &&
-					openAvailabilities ? (
+					{availableEntities.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>
 								<h3 style={{ margin: 0 }}>
@@ -376,57 +367,52 @@ const Home = () => {
 										Recreation.Gov
 									</Link>
 								</p>
+								{/* if there arent availabilities for every date, create an alert */}
+
 								<List>
-									{entityType === 'permit'
-										? availablePermits
-												.sort(
-													(a, b) =>
-														moment(a.date).valueOf() - moment(b.date).valueOf()
-												)
-												.map((permit, index) => {
-													return (
-														<ListItem disablePadding key={index}>
-															<ListItemText>
-																{permit.remaining}{' '}
-																{permit.remaining > 1
+									{availableEntities
+										.sort(
+											(a, b) =>
+												moment(a.date).valueOf() - moment(b.date).valueOf()
+										)
+										.map((entity, index) => {
+											return (
+												<ListItem disablePadding key={index}>
+													<ListItemText>
+														{entityType === 'permit' && entity?.remaining ? (
+															<>
+																{entity.remaining}{' '}
+																{entity.remaining > 1
 																	? 'permits available'
 																	: 'permit available'}{' '}
-																for: {moment(permit.date).format('MM-DD-YYYY')}
-															</ListItemText>
-														</ListItem>
-													);
-												})
-										: availableCampsites
-												.sort(
-													(a, b) =>
-														moment(a.date).valueOf() - moment(b.date).valueOf()
-												)
-												.map((campsite, index) => {
-													return (
-														<ListItem disablePadding key={index}>
-															<ListItemText>
-																{campsite.sites.length}{' '}
-																{campsite.sites.length > 1
-																	? 'availabilities'
-																	: 'available'}{' '}
-																for:{' '}
-																{moment(campsite.date).format('MM-DD-YYYY')}
-															</ListItemText>
-														</ListItem>
-													);
-												})}
+																for: {moment(entity.date).format('MM-DD-YYYY')}
+															</>
+														) : null}
+														{entityType === 'campground' && entity?.sites ? (
+															<>
+																{entity.sites.length}{' '}
+																{entity.sites.length > 1
+																	? 'sites available'
+																	: 'site available'}{' '}
+																for: {moment(entity.date).format('MM-DD-YYYY')}
+															</>
+														) : null}
+													</ListItemText>
+												</ListItem>
+											);
+										})}
 								</List>
 							</List>
 						</Box>
-					) : !availableCampsites.length && openAvailabilities ? (
+					) : !availableEntities.length && openAvailabilities ? (
 						<Box
 							className="search-results empty-results"
 							p={2}
 							style={{ display: 'flex', alignItems: 'center' }}
 						>
 							<Typography>
-								Currently no available campsites/permits for the selected dates. <br />{' '}
-								Create an alert to be notified of an opening.
+								Currently no available campsites/permits for the selected dates.{' '}
+								<br /> Create an alert to be notified of an opening.
 							</Typography>
 
 							{user ? (

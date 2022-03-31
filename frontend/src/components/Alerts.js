@@ -17,7 +17,7 @@ import { grey } from '@mui/material/colors';
 import moment from 'moment';
 import { Tooltip } from '@mui/material';
 
-import Settings from '../components/Settings';
+import Settings from './Settings';
 
 const Alerts = () => {
 	const [rows, setRows] = useState([]);
