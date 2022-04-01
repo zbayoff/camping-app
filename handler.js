@@ -139,7 +139,7 @@ const availability = async (event, context) => {
 		const availableCampgrounds = [];
 
 		console.log(
-			'---- Email Job -------------------------------------------------'
+			`---- Email Job ${emailJob._id} -------------------------------------------------`
 		);
 
 		// don't query Rec API if last email sent to user is not past their specified frequency
@@ -209,11 +209,11 @@ const availability = async (event, context) => {
 	}
 };
 
-(async () => {
-	// IIFE to give access to async/await
-	await availability(null, {});
-	process.exit();
-})();
+// (async () => {
+// 	// IIFE to give access to async/await
+// 	await availability(null, {});
+// 	process.exit();
+// })();
 
 module.exports = {
 	availability,
