@@ -39,7 +39,7 @@ const CreateAlertModal = ({
 		// restrict alerts to 2 week period MAX
 		if (
 			Math.abs(checkInOutDates[0].diff(checkInOutDates[1], 'days')) + 1 >
-			14
+			15
 		) {
 			setSeverity('error');
 			setMessage('Error. An alert may be created only for a 14 day period.');
@@ -98,8 +98,8 @@ const CreateAlertModal = ({
 				<DialogContent>
 					<DialogContentText>
 						You will be alerted by email for this campground at the frequency
-						according to your preferences in Settings. Modify them{' '}
-						<Link component={RouterLink} to="/settings">
+						according to your preferences. Modify them{' '}
+						<Link component={RouterLink} to="/alerts">
 							here
 						</Link>
 						.

@@ -138,7 +138,9 @@ const availability = async (event, context) => {
 
 		const availableCampgrounds = [];
 
-		console.log('-------------------------------------------------');
+		console.log(
+			'---- Email Job -------------------------------------------------'
+		);
 
 		// don't query Rec API if last email sent to user is not past their specified frequency
 		// but need to deal with case when user first creates EmailJob and emailJob.lastRunAt is ""
@@ -195,7 +197,11 @@ const availability = async (event, context) => {
 			}
 
 			if (availableCampgrounds.length) {
-				await sendEmail(availableCampgrounds, user, emailJob);
+				try {
+					await sendEmail(availableCampgrounds, user, emailJob);
+				} catch (e) {
+					console.log('error sending email: ', e);
+				}
 			}
 		} else {
 			console.log('currently not past user frequency');

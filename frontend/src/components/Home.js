@@ -14,6 +14,7 @@ import DateRangePicker from '@mui/lab/DateRangePicker';
 import {
 	Avatar,
 	Button,
+	Grid,
 	IconButton,
 	Link,
 	List,
@@ -45,6 +46,7 @@ const Home = () => {
 	const [openAvailabilities, setOpenAvailabilities] = useState(false);
 	const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
 	const [entityType, setEntityType] = useState('');
+	const [checkInOutDates, setCheckInOutDates] = React.useState([null, null]);
 
 	const { user } = useContext(AuthContext);
 
@@ -124,14 +126,36 @@ const Home = () => {
 		}
 	};
 
-	const [checkInOutDates, setCheckInOutDates] = React.useState([null, null]);
-
 	const onBlurField = () => {
 		// setOpenSuggestions(false);
 	};
 
 	const onFocusFieldFirstName = () => {
 		setOpenSuggestions(true);
+	};
+
+	const availabilitiesForEveryDate = () => {
+		let allDatesBetweenCheckinOutDates = [];
+		let now = checkInOutDates[0].clone();
+
+		while (now.isBefore(checkInOutDates[1])) {
+			allDatesBetweenCheckinOutDates.push(now.format('MM/DD/YYYY'));
+			now.add(1, 'days');
+		}
+
+		const availabilityDates = availableEntities.map((entity) => {
+			return moment.utc(entity.date).format('MM/DD/YYYY');
+		});
+
+		const containsAll = (arr1, arr2) =>
+			arr2.every((arr2Item) => arr1.includes(arr2Item));
+
+		const sameMembers = (arr1, arr2) =>
+			containsAll(arr1, arr2) && containsAll(arr2, arr1);
+
+		return sameMembers(availabilityDates, allDatesBetweenCheckinOutDates)
+			? true
+			: false;
 	};
 
 	return (
@@ -202,6 +226,7 @@ const Home = () => {
 								value={checkInOutDates}
 								onChange={(newValue) => {
 									setCheckInOutDates(newValue);
+									setOpenAvailabilities(false);
 								}}
 								renderInput={(startProps, endProps) => (
 									<React.Fragment>
@@ -345,63 +370,95 @@ const Home = () => {
 					{availableEntities.length && openAvailabilities ? (
 						<Box className="search-results" p={2}>
 							<List>
-								<h3 style={{ margin: 0 }}>
-									{entityType === 'campground' ? 'Campsites' : 'Permits'}{' '}
-									Available!{' '}
-								</h3>
-								<p style={{ margin: 0 }}>
-									Reserve on{' '}
-									<Link
-										target="_blank"
-										rel="noreferrer"
-										href={
-											entityType === 'campground'
-												? `https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`
-												: `https://www.recreation.gov/permits/${
-														campgroundValue.entityId
-												  }/registration/detailed-availability?date=${moment(
-														checkInOutDates[0]
-												  ).format('YYYY-MM-DD')}`
-										}
-									>
-										Recreation.Gov
-									</Link>
-								</p>
-								{/* if there arent availabilities for every date, create an alert */}
-
-								<List>
-									{availableEntities
-										.sort(
-											(a, b) =>
-												moment(a.date).valueOf() - moment(b.date).valueOf()
-										)
-										.map((entity, index) => {
-											return (
-												<ListItem disablePadding key={index}>
-													<ListItemText>
-														{entityType === 'permit' && entity?.remaining ? (
-															<>
-																{entity.remaining}{' '}
-																{entity.remaining > 1
-																	? 'permits available'
-																	: 'permit available'}{' '}
-																for: {moment(entity.date).format('MM-DD-YYYY')}
-															</>
-														) : null}
-														{entityType === 'campground' && entity?.sites ? (
-															<>
-																{entity.sites.length}{' '}
-																{entity.sites.length > 1
-																	? 'sites available'
-																	: 'site available'}{' '}
-																for: {moment(entity.date).format('MM-DD-YYYY')}
-															</>
-														) : null}
-													</ListItemText>
-												</ListItem>
-											);
-										})}
-								</List>
+								<Grid container>
+									<Grid item xs={6}>
+										<h3 style={{ margin: 0 }}>
+											{entityType === 'campground' ? 'Campsites' : 'Permits'}{' '}
+											Available!{' '}
+										</h3>
+										<p style={{ margin: 0 }}>
+											Reserve on{' '}
+											<Link
+												target="_blank"
+												rel="noreferrer"
+												href={
+													entityType === 'campground'
+														? `https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`
+														: `https://www.recreation.gov/permits/${
+																campgroundValue.entityId
+														  }/registration/detailed-availability?date=${moment(
+																checkInOutDates[0]
+														  ).format('YYYY-MM-DD')}`
+												}
+											>
+												Recreation.Gov
+											</Link>
+										</p>
+										<List>
+											{availableEntities
+												.sort(
+													(a, b) =>
+														moment(a.date).valueOf() - moment(b.date).valueOf()
+												)
+												.map((entity, index) => {
+													return (
+														<ListItem disablePadding key={index}>
+															<ListItemText>
+																{entityType === 'permit' &&
+																entity?.remaining ? (
+																	<>
+																		{entity.remaining}{' '}
+																		{entity.remaining > 1
+																			? 'permits available'
+																			: 'permit available'}{' '}
+																		for:{' '}
+																		{moment(entity.date).format('MM-DD-YYYY')}
+																	</>
+																) : null}
+																{entityType === 'campground' &&
+																entity?.sites ? (
+																	<>
+																		{entity.sites.length}{' '}
+																		{entity.sites.length > 1
+																			? 'sites available'
+																			: 'site available'}{' '}
+																		for:{' '}
+																		{moment(entity.date).format('MM-DD-YYYY')}
+																	</>
+																) : null}
+															</ListItemText>
+														</ListItem>
+													);
+												})}
+										</List>
+									</Grid>
+									{/* if there arent availabilities for every date, create an alert */}
+									{!availabilitiesForEveryDate() ? (
+										<Grid item xs={6}>
+											<Box mb="1rem">
+												There aren't availabilites for all of the dates you
+												selected. Create an alert to be notified when they
+												become available.
+											</Box>
+											<Button
+												className="create-alert-button"
+												variant="contained"
+												startIcon={<AddAlertIcon />}
+												onClick={() => setAddAlertModalOpen(true)}
+											>
+												Create an alert
+											</Button>
+											<CreateAlertModal
+												open={addAlertModalOpen}
+												handleClose={() => {
+													setAddAlertModalOpen(false);
+												}}
+												campgroundValue={campgroundValue}
+												checkInOutDates={checkInOutDates}
+											/>
+										</Grid>
+									) : null}
+								</Grid>
 							</List>
 						</Box>
 					) : !availableEntities.length && openAvailabilities ? (
