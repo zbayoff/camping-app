@@ -3,14 +3,15 @@ import { AuthContext } from '../contexts/authContext';
 
 import _ from 'lodash';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Box } from '@mui/system';
 import TextField from '@mui/material/TextField';
 
 import AdapterDateFns from '@mui/lab/AdapterMoment';
 
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DateRangePicker from '@mui/lab/DateRangePicker';
+import DateRangePicker, { DateRange } from '@mui/lab/DateRangePicker';
+
 import {
 	Avatar,
 	Button,
@@ -34,19 +35,54 @@ import CreateAlertModal from './CreateAlertModal';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
+export type Site = {
+	loop: string;
+	site: string;
+	siteId: string;
+};
+
+export type CampgroundAvailability = {
+	date: Date;
+	sites: Site[];
+};
+
+export type PermitAvailability = {
+	total: Number;
+	remaining: Number;
+	show_walkup: Boolean;
+	is_secret_quota: Boolean;
+	date: Date;
+};
+
+export type Suggestion = {
+	entity_id: string;
+	entity_type: string;
+	name: string;
+	parent_name: string;
+	text: string;
+	preview_image_url: string;
+	city: string;
+};
+
 const Home = () => {
 	const [campgroundValue, setCampgroundValue] = useState({
 		displayName: '',
 		entityId: '',
 		entityType: '',
 	});
-	const [campgroundSuggestions, setCampgroundSuggestions] = useState([]);
-	const [availableEntities, setAvailableEntities] = useState([]);
+	const [campgroundSuggestions, setCampgroundSuggestions] = useState<
+		Suggestion[]
+	>([]);
+	const [availableEntities, setAvailableEntities] = useState<
+		CampgroundAvailability[] | PermitAvailability[] | []
+	>([]);
 	const [openSuggestions, setOpenSuggestions] = useState(false);
 	const [openAvailabilities, setOpenAvailabilities] = useState(false);
 	const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
 	const [entityType, setEntityType] = useState('');
-	const [checkInOutDates, setCheckInOutDates] = React.useState([null, null]);
+	const [checkInOutDates, setCheckInOutDates] = React.useState<
+		DateRange<moment.Moment>
+	>([null, null]);
 
 	const { user } = useContext(AuthContext);
 
@@ -55,7 +91,9 @@ const Home = () => {
 	const inputEl = useRef(null);
 
 	// TODO: Add support for Permits from Rec API
-	const fetchCampgrounds = async (event) => {
+	const fetchCampgrounds = async (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
 		if (event.target.value) {
 			try {
 				const { data } = await axios.get(
@@ -65,20 +103,31 @@ const Home = () => {
 					setCampgroundSuggestions(data.inventory_suggestions);
 				}
 			} catch (err) {
-				console.log('error fetching campgrounds: ', err.response);
+				console.log('error fetching campgrounds: ', err);
+
+				if (axios.isAxiosError(err)) {
+					const axiosError = err as AxiosError;
+
+					console.log('Axios error: ', axiosError.response);
+
+					setMessage(
+						'Error fetching campgrounds: ' +
+							' ' +
+							axiosError.response?.status +
+							' ' +
+							axiosError.response?.statusText
+					);
+				}
+
 				setSeverity('error');
-				setMessage(
-					'Error fetching campgrounds: ' +
-						err.response.status +
-						' ' +
-						err.response.statusText
-				);
 				setSnackOpen(true);
 			}
 		}
 	};
 
-	const onCampgroundChangeHandler = (event) => {
+	const onCampgroundChangeHandler = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
 		setCampgroundValue({
 			displayName: event.target.value,
 			entityId: '',
@@ -91,7 +140,7 @@ const Home = () => {
 
 	const delayedQuery = useMemo(() => _.debounce(fetchCampgrounds, 500), []);
 
-	const onSubmitHandler = async (event) => {
+	const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		// fetch availabilites
 
@@ -117,11 +166,20 @@ const Home = () => {
 				setAvailableEntities([]);
 			}
 		} catch (err) {
-			console.log('Error fetching available campsites: ', err.response);
+			console.log('Error fetching available campsites: ', err);
+			if (axios.isAxiosError(err)) {
+				const axiosError = err as AxiosError;
+
+				console.log('Axios error: ', axiosError.response);
+
+				setMessage(
+					'Error fetching campgrounds: ' +
+						axiosError.response?.data.message +
+						' '
+				);
+			}
 			setSeverity('error');
-			setMessage(
-				'Error fetching campgrounds: ' + err.response.data.message + ' '
-			);
+
 			setSnackOpen(true);
 		}
 	};
@@ -136,26 +194,48 @@ const Home = () => {
 
 	const availabilitiesForEveryDate = () => {
 		let allDatesBetweenCheckinOutDates = [];
-		let now = checkInOutDates[0].clone();
 
-		while (now.isBefore(checkInOutDates[1])) {
-			allDatesBetweenCheckinOutDates.push(now.format('MM/DD/YYYY'));
-			now.add(1, 'days');
+		if (checkInOutDates[0] && checkInOutDates[1]) {
+			let now = checkInOutDates[0].clone();
+
+			while (now.isBefore(checkInOutDates[1])) {
+				allDatesBetweenCheckinOutDates.push(now.format('MM/DD/YYYY'));
+				now.add(1, 'days');
+			}
+
+			const availabilityDates = availableEntities.map((entity) => {
+				return moment.utc(entity.date).format('MM/DD/YYYY');
+			});
+
+			const containsAll = (arr1: string[], arr2: string[]) =>
+				arr2.every((arr2Item) => arr1.includes(arr2Item));
+
+			const sameMembers = (arr1: string[], arr2: string[]) =>
+				containsAll(arr1, arr2) && containsAll(arr2, arr1);
+
+			return sameMembers(availabilityDates, allDatesBetweenCheckinOutDates)
+				? true
+				: false;
 		}
+	};
 
-		const availabilityDates = availableEntities.map((entity) => {
-			return moment.utc(entity.date).format('MM/DD/YYYY');
-		});
+	// const isEntityPermit = (
+	// 	entity: CampgroundAvailability | PermitAvailability
+	// ) => {
+	// 	// check if the specified property is in the given object
+	// 	return 'remaining' in entity;
+	// };
 
-		const containsAll = (arr1, arr2) =>
-			arr2.every((arr2Item) => arr1.includes(arr2Item));
+	const isEntityPermit = (
+		entity: CampgroundAvailability | PermitAvailability
+	): entity is PermitAvailability => {
+		return (entity as PermitAvailability).remaining !== undefined;
+	};
 
-		const sameMembers = (arr1, arr2) =>
-			containsAll(arr1, arr2) && containsAll(arr2, arr1);
-
-		return sameMembers(availabilityDates, allDatesBetweenCheckinOutDates)
-			? true
-			: false;
+	const isEntityCampground = (
+		entity: CampgroundAvailability | PermitAvailability
+	): entity is CampgroundAvailability => {
+		return (entity as CampgroundAvailability).sites !== undefined;
 	};
 
 	return (
@@ -323,7 +403,6 @@ const Home = () => {
 											<ListItemAvatar>
 												<Avatar sx={{ bgcolor: 'primary.main' }}>
 													<SvgIcon
-														color="white"
 														viewBox={'0 0 24 24'}
 														style={{ width: '60px' }}
 													>
@@ -404,8 +483,7 @@ const Home = () => {
 													return (
 														<ListItem disablePadding key={index}>
 															<ListItemText>
-																{entityType === 'permit' &&
-																entity?.remaining ? (
+																{isEntityPermit(entity) && entity.remaining ? (
 																	<>
 																		{entity.remaining}{' '}
 																		{entity.remaining > 1
@@ -415,8 +493,7 @@ const Home = () => {
 																		{moment(entity.date).format('MM-DD-YYYY')}
 																	</>
 																) : null}
-																{entityType === 'campground' &&
-																entity?.sites ? (
+																{isEntityCampground(entity) && entity.sites ? (
 																	<>
 																		{entity.sites.length}{' '}
 																		{entity.sites.length > 1

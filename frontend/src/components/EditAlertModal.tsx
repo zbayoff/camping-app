@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import Box from '@mui/material/Box';
 
@@ -20,7 +20,28 @@ import Dialog from '@mui/material/Dialog';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
-const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
+export type Entity = {
+	id: Number;
+	name: String;
+	type: 'campground' | 'permit';
+};
+
+export type Alert = {
+	_id: string;
+	userId: string;
+	entity: Entity;
+	checkinDate: Date;
+	checkoutDate: Date;
+	enabled: Boolean;
+};
+
+interface EditAlertModalProps {
+	alert: Alert;
+	handleClose: () => void;
+	open: boolean;
+}
+
+const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
 	const [enabledValue, setEnabledValue] = useState(alert.enabled);
 
@@ -28,7 +49,7 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 		setEnabledValue(alert.enabled);
 	}, [alert.enabled]);
 
-	const handleChange = (event) => {
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.value === 'true') {
 			setEnabledValue(true);
 		} else {
@@ -36,14 +57,16 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 		}
 	};
 
-	const onSubmitHandler = async (event) => {
+	const onSubmitHandler = async (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.preventDefault();
 
 		const newObj = { ...alert, enabled: enabledValue };
 
 		try {
 			const response = await axios.put(
-				`/api/alert/${alert.id}`,
+				`/api/alert/${alert._id}`,
 				{
 					alert: newObj,
 				},
@@ -58,17 +81,24 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 
 			handleClose();
 		} catch (err) {
-			console.log('err updating alert: ', err.response);
+			console.log('err updating alert: ', err);
+
+			if (axios.isAxiosError(err)) {
+				const axiosError = err as AxiosError;
+
+				console.log('Axios error: ', axiosError.response);
+
+				setMessage(
+					'Error updating user alert: ' +
+						' ' +
+						axiosError.response?.status +
+						' ' +
+						axiosError.response?.statusText
+				);
+			}
 
 			// show custom snackbar error
 			setSeverity('error');
-			setMessage(
-				'Error updating alert: ' +
-					' ' +
-					err.response.status +
-					' ' +
-					err.response.statusText
-			);
 			setSnackOpen(true);
 		}
 	};
@@ -84,7 +114,6 @@ const EditAlertModal = ({ alert, handleOpen, handleClose, open }) => {
 					'& > :not(style)': { m: 1 },
 				}}
 				autoComplete="off"
-				onSubmit={onSubmitHandler}
 			>
 				<DialogTitle>
 					Edit Alert for {alert ? alert.entity.name : null}

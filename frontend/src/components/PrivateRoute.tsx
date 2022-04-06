@@ -5,7 +5,13 @@ import Cookies from 'js-cookie';
 import { validateToken } from '../utils/auth';
 import { Container, Grid } from '@mui/material';
 
-export const PrivateRoute = ({ component, path, exact }) => {
+interface PrivateRouteProps {
+    path: string;
+    exact?: boolean;
+    component: React.ComponentType<any>;
+}
+
+export const PrivateRoute = ({ component, path, exact }: PrivateRouteProps) => {
 	return (
 		<Route
 			path={path}
@@ -23,7 +29,13 @@ export const PrivateRoute = ({ component, path, exact }) => {
 	);
 };
 
-const PrivatePage = ({ Component, componentProps }) => {
+interface PrivatePageProps {
+    path: string;
+    Component: React.ComponentType<any>;
+    componentProps: any;
+}
+
+const PrivatePage = ({ Component, componentProps }: PrivatePageProps) => {
 	if (
 		!validateToken(localStorage.getItem('jwtToken')) ||
 		!Cookies.get('secondToken')

@@ -4,12 +4,23 @@ import GoogleLogin from 'react-google-login';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/authContext';
 
-const Login = ({ loginText = 'Login', className }) => {
+export interface LoginProps {
+	loginText?: string;
+	className?: string;
+}
+
+export interface LocationState {
+	from: {
+		pathname: string;
+	};
+}
+
+const Login = ({ loginText = 'Login', className }: LoginProps) => {
 	const history = useHistory();
-	const location = useLocation();
+	const location = useLocation<LocationState>();
 	const { setUser } = useContext(AuthContext);
 
-	const onSuccessHandler = async (response) => {
+	const onSuccessHandler = async (response: any) => {
 		const { data } = await axios.post('/auth/google', {
 			token: response.tokenId,
 		});
@@ -28,13 +39,17 @@ const Login = ({ loginText = 'Login', className }) => {
 		}
 	};
 
-	const onFailureHandler = (reason) => {
+	const onFailureHandler = (reason: any) => {
 		console.log('failed: ', reason);
 	};
 
 	return (
 		<GoogleLogin
-			clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+			clientId={
+				process.env.REACT_APP_GOOGLE_CLIENT_ID
+					? process.env.REACT_APP_GOOGLE_CLIENT_ID
+					: ''
+			}
 			buttonText="Login"
 			onSuccess={onSuccessHandler}
 			onFailure={onFailureHandler}

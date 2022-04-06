@@ -22,13 +22,13 @@ const Navigation = () => {
 	const { user } = useContext(AuthContext);
 	const { pathname } = useLocation();
 
-	const [anchorElNav, setAnchorElNav] = useState(null);
-	const [anchorElUser, setAnchorElUser] = useState(null);
+	const [anchorElNav, setAnchorElNav] = useState<Element | null>(null);
+	const [anchorElUser, setAnchorElUser] = useState<Element | null>(null);
 
-	const handleOpenNavMenu = (event) => {
+	const handleOpenNavMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorElNav(event.currentTarget);
 	};
-	const handleOpenUserMenu = (event) => {
+	const handleOpenUserMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorElUser(event.currentTarget);
 	};
 
@@ -47,7 +47,7 @@ const Navigation = () => {
 		>
 			<Container maxWidth="xl">
 				<Toolbar disableGutters>
-					<Link to="/" underline="none">
+					<Link to="/">
 						<SvgIcon
 							color="primary"
 							viewBox={'0 0 224 144'}

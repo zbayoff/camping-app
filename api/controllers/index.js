@@ -44,8 +44,6 @@ async function addAlert(req, res) {
 		userId: ObjectId(userId),
 	});
 
-	console.log('entity: ', entity);
-
 	const existingAlert = await Alert.countDocuments({
 		'entity.id': entity.id,
 		userId: ObjectId(userId),

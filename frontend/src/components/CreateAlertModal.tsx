@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import moment from 'moment';
 
 import { Box } from '@mui/system';
 import {
@@ -23,59 +24,87 @@ import Link from '@mui/material/Link';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
+import { DateRange } from '@mui/lab/DateRangePicker';
+
+export type campgroundValue = {
+	displayName: string;
+	entityId: string;
+	entityType: string;
+};
+
+interface CreateAlertModalProps {
+	handleClose: () => void;
+	open: boolean;
+	campgroundValue: campgroundValue;
+	checkInOutDates: DateRange<moment.Moment>;
+}
+
 const CreateAlertModal = ({
 	open,
 	handleClose,
 	campgroundValue,
 	checkInOutDates,
-}) => {
+}: CreateAlertModalProps) => {
 	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
 
 	let history = useHistory();
 
-	const onSubmitHandler = async (event) => {
+	const onSubmitHandler = async (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.preventDefault();
 
 		// restrict alerts to 2 week period MAX
-		if (
-			Math.abs(checkInOutDates[0].diff(checkInOutDates[1], 'days')) + 1 >
-			15
-		) {
-			setSeverity('error');
-			setMessage('Error. An alert may be created only for a 14 day period.');
-			setSnackOpen(true);
-		} else {
-			try {
-				const response = await axios.post(
-					'/api/alert',
-					{
-						entity: {
-							id: campgroundValue.entityId,
-							name: campgroundValue.displayName,
-							type: campgroundValue.entityType,
-						},
-						checkinDate: checkInOutDates[0].format('YYYY-MM-DD'),
-						checkoutDate: checkInOutDates[1].format('YYYY-MM-DD'),
-						enabled: true,
-					},
-					{
-						withCredentials: true,
-					}
-				);
-
-				setSeverity('success');
-				setMessage('Success! Your alert has been created.');
-				setSnackOpen(true);
-
-				handleClose();
-				history.push('/alerts');
-			} catch (err) {
-				console.log('err adding alert: ', err.response);
-
-				// show custom snackbar error
+		if (checkInOutDates[0] && checkInOutDates[1]) {
+			if (
+				Math.abs(checkInOutDates[0].diff(checkInOutDates[1], 'days')) + 1 >
+				15
+			) {
 				setSeverity('error');
-				setMessage('Error adding alert: ' + err.response.data.message + ' ');
+				setMessage('Error. An alert may be created only for a 14 day period.');
 				setSnackOpen(true);
+			} else {
+				try {
+					const response = await axios.post(
+						'/api/alert',
+						{
+							entity: {
+								id: campgroundValue.entityId,
+								name: campgroundValue.displayName,
+								type: campgroundValue.entityType,
+							},
+							checkinDate: checkInOutDates[0].format('YYYY-MM-DD'),
+							checkoutDate: checkInOutDates[1].format('YYYY-MM-DD'),
+							enabled: true,
+						},
+						{
+							withCredentials: true,
+						}
+					);
+
+					setSeverity('success');
+					setMessage('Success! Your alert has been created.');
+					setSnackOpen(true);
+
+					handleClose();
+					history.push('/alerts');
+				} catch (err) {
+					console.log('err adding alert: ', err);
+
+					if (axios.isAxiosError(err)) {
+						const axiosError = err as AxiosError;
+
+						console.log('Axios error: ', axiosError.response);
+
+						setMessage(
+							'Error adding alert: ' + axiosError.response?.data.message + ' '
+						);
+					}
+
+					// show custom snackbar error
+					setSeverity('error');
+					setSnackOpen(true);
+				}
 			}
 		}
 	};
@@ -91,7 +120,6 @@ const CreateAlertModal = ({
 					'& > :not(style)': { m: 1 },
 				}}
 				autoComplete="off"
-				onSubmit={onSubmitHandler}
 			>
 				<DialogTitle>Create Alert</DialogTitle>
 

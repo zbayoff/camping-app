@@ -1,19 +1,20 @@
 import React, { createContext, useState } from 'react';
 import { Alert, Snackbar } from '@mui/material';
+import type { AlertColor } from '@material-ui/lab/Alert';
 
-export const SnackbarContext = createContext();
+export const SnackbarContext = createContext<any>(null);
 
-export const SnackbarProvider = ({ children }) => {
+export interface SnackbarProviderProps {
+	children: React.ReactNode;
+}
+
+export const SnackbarProvider = ({ children }: SnackbarProviderProps) => {
 	// Snackbar State
 	const [snackOpen, setSnackOpen] = useState(false);
-	const [severity, setSeverity] = useState('info');
+	const [severity, setSeverity] = useState<AlertColor>('info');
 	const [message, setMessage] = useState('');
 
-	const handleSnackClose = (event, reason) => {
-		if (reason === 'clickaway') {
-			return;
-		}
-
+	const handleSnackClose = (event: React.SyntheticEvent<any> | Event) => {
 		setSnackOpen(false);
 	};
 
@@ -33,7 +34,7 @@ export const SnackbarProvider = ({ children }) => {
 				open={snackOpen}
 				autoHideDuration={4000}
 				onClose={handleSnackClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
 			>
 				<Alert
 					onClose={handleSnackClose}

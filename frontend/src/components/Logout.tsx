@@ -9,7 +9,7 @@ const Logout = () => {
 	const history = useHistory();
 	const { setUser } = useContext(AuthContext);
 
-	const onLogoutSuccessHandler = async (response) => {
+	const onLogoutSuccessHandler = async () => {
 		history.replace('/');
 
 		const res = await axios.delete('/auth/google');
@@ -31,10 +31,14 @@ const Logout = () => {
 
 	return (
 		<GoogleLogout
-			clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+			clientId={
+				process.env.REACT_APP_GOOGLE_CLIENT_ID
+					? process.env.REACT_APP_GOOGLE_CLIENT_ID
+					: ''
+			}
 			buttonText="Logout"
 			onLogoutSuccess={onLogoutSuccessHandler}
-			onLogoutFailure={onFailureHandler}
+			onFailure={onFailureHandler}
 		/>
 	);
 };

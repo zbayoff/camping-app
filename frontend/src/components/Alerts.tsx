@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditAlertModal from './EditAlertModal';
+import EditAlertModal, { Alert } from './EditAlertModal';
 import DeleteAlertModal from './DeleteAlertModal';
 import { grey } from '@mui/material/colors';
 
@@ -23,7 +23,7 @@ const Alerts = () => {
 	const [rows, setRows] = useState([]);
 
 	const [editModalOpen, setEditModalOpen] = useState(false);
-	const [selectedAlert, setSelectedAlert] = useState(null);
+	const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
 	const handleEditModalClose = () => setEditModalOpen(false);
@@ -38,39 +38,30 @@ const Alerts = () => {
 					withCredentials: true,
 				});
 				if (response.data) {
-					const rows = response.data.map((row) => {
-						return {
-							id: row._id,
-							entity: {
-								id: row.entity.id,
-								name: row.entity.name,
-								type: row.entity.type,
-							},
-							checkinDate: row.checkinDate,
-							checkoutDate: row.checkoutDate,
-							enabled: row.enabled,
-						};
-					});
-
-					setRows(rows);
+					setRows(response.data);
 				} else {
 					setRows([]);
 				}
-			} catch (error) {
-				console.log('error  fetching alerts response', error.response);
+			} catch (err) {
+				console.log('error  fetching alerts response', err);
+				if (axios.isAxiosError(err)) {
+					const axiosError = err as AxiosError;
+
+					console.log('Axios error: ', axiosError.response);
+				}
 			}
 		};
 
 		fetchUserAlerts();
 	}, [deleteModalOpen, editModalOpen]);
 
-	const handleEditModalOpen = (alert) => {
+	const handleEditModalOpen = (alert: Alert) => {
 		// trigger edit alert modal
 		setEditModalOpen(true);
 		setSelectedAlert(alert);
 	};
 
-	const handleDeleteModalOpen = (alert) => {
+	const handleDeleteModalOpen = (alert: Alert) => {
 		setDeleteModalOpen(true);
 		setSelectedAlert(alert);
 	};
@@ -99,10 +90,10 @@ const Alerts = () => {
 						</TableHead>
 						<TableBody>
 							{rows
-								.sort((a, b) =>
+								.sort((a: Alert, b: Alert) =>
 									moment.utc(b.checkinDate).diff(moment.utc(a.checkinDate))
 								)
-								.map((row) => {
+								.map((row: Alert) => {
 									return (
 										<Tooltip
 											placement="top"
@@ -112,7 +103,7 @@ const Alerts = () => {
 													? 'Alert has expired'
 													: ''
 											}
-											key={row.id}
+											key={row._id}
 										>
 											<TableRow
 												sx={{
@@ -126,7 +117,12 @@ const Alerts = () => {
 												<TableCell style={{ textTransform: 'capitalize' }}>
 													{row.entity.name}
 												</TableCell>
-												<TableCell align="right" style={{ textTransform: 'capitalize' }}>{row.entity.type}</TableCell>
+												<TableCell
+													align="right"
+													style={{ textTransform: 'capitalize' }}
+												>
+													{row.entity.type}
+												</TableCell>
 												<TableCell align="right">
 													{moment
 														.utc(row.checkinDate)
@@ -173,7 +169,6 @@ const Alerts = () => {
 						open={deleteModalOpen}
 						handleClose={handleDeleteModalClose}
 						alert={selectedAlert}
-						setSelectedAlert
 					/>
 				) : null}
 			</div>

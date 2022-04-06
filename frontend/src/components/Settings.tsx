@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -34,7 +34,7 @@ const Settings = () => {
 
 	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
 
-	const onSubmit = async (event) => {
+	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		const updatedUser = {
@@ -66,17 +66,24 @@ const Settings = () => {
 
 			// need to update "user" Context
 		} catch (err) {
-			console.log('err updating settings: ', err.response);
+			console.log('err updating settings: ', err);
+			if (axios.isAxiosError(err)) {
+				const axiosError = err as AxiosError;
+
+				console.log('Axios error: ', axiosError.response);
+
+				setMessage(
+					'Error updating user settings: ' +
+						' ' +
+						axiosError.response?.status +
+						' ' +
+						axiosError.response?.statusText
+				);
+			}
 
 			// show custom snackbar error
 			setSeverity('error');
-			setMessage(
-				'Error updating user settings: ' +
-					' ' +
-					err.response.status +
-					' ' +
-					err.response.statusText
-			);
+
 			setSnackOpen(true);
 		}
 	};
@@ -153,7 +160,7 @@ const Settings = () => {
 					) : null}
 				</form>
 			</Grid>
-			<Grid item xs={4} align="end">
+			<Grid item xs={4} sx={{ textAlign: 'right' }}>
 				{isEditing ? null : (
 					<Button
 						variant="contained"

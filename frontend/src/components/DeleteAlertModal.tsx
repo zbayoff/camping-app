@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import Box from '@mui/material/Box';
 
@@ -14,37 +14,60 @@ import {
 import Dialog from '@mui/material/Dialog';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
+import { Alert } from './EditAlertModal';
 
-const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
+export type Entity = {
+	id: Number;
+	name: String;
+	type: 'campground' | 'permit';
+};
+
+interface DeleteAlertModalProps {
+	alert: Alert;
+	handleClose: () => void;
+	open: boolean;
+}
+
+const DeleteAlertModal = ({
+	alert,
+	handleClose,
+	open,
+}: DeleteAlertModalProps) => {
 	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
 
-	const onSubmitHandler = async (event) => {
+	const onSubmitHandler = async (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.preventDefault();
 
 		try {
-			const response = await axios.delete(
-				`/api/alert/${alert.id}`,
-				{
-					withCredentials: true,
-				}
-			);
+			const response = await axios.delete(`/api/alert/${alert._id}`, {
+				withCredentials: true,
+			});
 			setSeverity('success');
 			setMessage('Success! Your alert has been deleted.');
 			setSnackOpen(true);
 
 			handleClose();
 		} catch (err) {
-			console.log('err deleting alert: ', err.response);
+			console.log('err deleting alert: ', err);
+			if (axios.isAxiosError(err)) {
+				const axiosError = err as AxiosError;
+
+				console.log('Axios error: ', axiosError.response);
+
+				setMessage(
+					'Error deleting user alert: ' +
+						' ' +
+						axiosError.response?.status +
+						' ' +
+						axiosError.response?.statusText
+				);
+			}
 
 			// show custom snackbar error
 			setSeverity('error');
-			setMessage(
-				'Error deleting alert: ' +
-					' ' +
-					err.response.status +
-					' ' +
-					err.response.statusText
-			);
+
 			setSnackOpen(true);
 		}
 	};
@@ -60,7 +83,6 @@ const DeleteAlertModal = ({ alert, handleClose, open, setSelectedAlert }) => {
 					'& > :not(style)': { m: 1 },
 				}}
 				autoComplete="off"
-				onSubmit={onSubmitHandler}
 			>
 				<DialogTitle>Delete Alert</DialogTitle>
 
