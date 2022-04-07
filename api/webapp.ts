@@ -1,15 +1,25 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const path = require('path');
-const mongoose = require('mongoose');
-const morgan = require('morgan');
-const helmet = require('helmet');
+import express from 'express';
+// import dotenv from 'dotenv';
 
-// const cors = require('cors');
-const cookieParser = require('cookie-parser');
+import path from 'path';
 
-// configs
-dotenv.config('./.env');
+import mongoose from 'mongoose';
+
+import morgan from 'morgan';
+
+import helmet from 'helmet';
+
+import cookieParser from 'cookie-parser';
+import * as dotenv from 'dotenv';
+
+// console.log(__dirname + '/.env')
+
+dotenv.config({ path: __dirname + '/.env' });
+
+// dotenv.config();
+
+// console.log('process.env: ', process.env)
+
 // mongoose.set('debug', true);
 
 const webApp = express();
@@ -28,12 +38,14 @@ webApp.use(cookieParser());
 webApp.use(express.urlencoded({ extended: true }));
 webApp.use(express.json());
 
-webApp.use(express.static(path.join(__dirname, 'frontend/build')));
-
 mongoose
-	.connect(process.env.MONGO_CONNECTION_STRING, {
-		useNewUrlParser: true,
-	})
+	.connect(
+		process.env.MONGO_CONNECTION_STRING as string
+
+		// 	, {
+		// 	useNewUrlParser: true,
+		// }
+	)
 	.then(() => {
 		console.log('Successfully connected to the database');
 	})
@@ -42,15 +54,17 @@ mongoose
 		process.exit();
 	});
 
-const routes = require('./api/routes/index');
-const authRoute = require('./api/routes/auth');
+const routes = require('./routes/index');
+const authRoute = require('./routes/auth');
 
 webApp.use('/api', routes);
 webApp.use('/auth', authRoute);
 
-webApp.use(express.static(path.join(__dirname, 'frontend/build')));
+console.log(path.join(__dirname, '../frontend/build'))
+
+webApp.use(express.static(path.join(__dirname, '../frontend/build')));
 webApp.get('/*', (req, res) => {
-	res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+	res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 // webApp.get('/*', (req, res) => {

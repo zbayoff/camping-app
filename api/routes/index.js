@@ -44,7 +44,6 @@ router.get('/user/alerts', auth, async (req, res) => {
 	// fetch all alerts associated with authenticated user
 	try {
 		const alerts = await Alert.find({ userId: req.userId }); // should both be ObjectId types
-		console.log('alerts: ', alerts)
 		res.send(alerts);
 	} catch (error) {
 		console.log('/user/alerts: ', error);
@@ -57,8 +56,6 @@ router.get('/user/alerts', auth, async (req, res) => {
 
 router.post('/availableCampsites', async (req, res) => {
 	const { id, checkinDate, checkoutDate } = req.body;
-
-	console.log('id: ', id);
 
 	try {
 		if (id) {
