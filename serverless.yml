@@ -13,13 +13,13 @@
 
 service: campground-scraper
 
-package: # Optional deployment packaging configuration
-  patterns: # Specify the directories and files which should be included in the deployment package
-    - api/**
-    - handler.js
-    - '!.git/**'
-    - '!frontend/**'
-  individually: false # Enables individual packaging for each function. If true you must provide package for each function. Defaults to false
+# package: # Optional deployment packaging configuration
+#   patterns: # Specify the directories and files which should be included in the deployment package
+#     - dist/**
+#     - '!.git/**'
+#     - '!frontend/**'
+#     - '!api/**'
+#   individually: false # Enables individual packaging for each function. If true you must provide package for each function. Defaults to false
 
 
 # plugins:
@@ -37,6 +37,9 @@ provider:
 plugins:
   - serverless-plugin-typescript
 
+# custom:
+#   serverlessPluginTypescript:
+#     tsConfigFileLocation: './tsconfig.build.json'
 
 functions:
   availability:

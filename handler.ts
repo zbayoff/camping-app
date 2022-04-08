@@ -141,7 +141,7 @@ const availability = async (event: any, context: any) => {
 		const availableCampgrounds = [];
 
 		console.log(
-			`---- Email Job ${emailJob._id} -------------------------------------------------`
+			`---- Email Job ID ${emailJob._id} -------------------------------------------------`
 		);
 
 		// don't query Rec API if last email sent to user is not past their specified frequency
