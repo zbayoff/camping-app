@@ -30,10 +30,9 @@
 		"node": "16.x"
 	},
 	"scripts": {
-		"start": "node ./dist/webapp.js",
 		"dev-client": "cd frontend && yarn start",
 		"dev-server": "nodemon ./api/webapp.ts",
-		"webapp": "node ./dist/webapp.js",
+		"webapp": "node ./dist/api/webapp.js",
 		"heroku-postbuild": "tsc & cd frontend/ && yarn install && yarn run build"
 	},
 	"devDependencies": {
