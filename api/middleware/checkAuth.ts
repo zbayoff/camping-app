@@ -1,11 +1,12 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
 
-module.exports = (req, res, next) => {
+const checkAuth = (req: Request, res: Response, next: any) => {
 	const { token } = req.cookies;
 	// decode token
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+		jwt.verify(token, process.env.JWT_SECRET, (err: any, decoded: any) => {
 			if (err) {
 				// would like to redirect user to /login page
 				res.status(401).send({
@@ -25,3 +26,5 @@ module.exports = (req, res, next) => {
 		});
 	}
 };
+
+export default checkAuth;

@@ -1,31 +1,32 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 const mongoose = require('mongoose');
 
-const User = require('../models/User');
-const Alert = require('../models/Alert');
-const EmailJob = require('../models/EmailJob');
+import User from '../models/User';
+import Alert from '../models/Alert';
+import EmailJob from '../models/EmailJob';
 
 const { findUser, findAlerts } = require('../helpers/index');
 
 const { ObjectId } = mongoose.Types;
 
-async function getUser(req, res) {
+async function getUser(req: any, res: any) {
 	const { id } = req.params;
 	const user = await findUser(id);
 	res.send(user);
 }
 
-async function getUsers(req, res) {
+async function getUsers(req: any, res: any) {
 	const results = await User.find({});
 	res.send(results);
 }
 
-async function getAlerts(req, res) {
+async function getAlerts(req: any, res: any) {
 	const results = await findAlerts();
+	console.log('results: ', results);
 	res.send(results);
 }
 
-async function addUser(req, res) {
+async function addUser(req: any, res: any) {
 	const { name, email, notificationSettings } = req.body;
 	const user = new User({
 		name,
@@ -36,7 +37,7 @@ async function addUser(req, res) {
 	res.send(user);
 }
 
-async function addAlert(req, res) {
+async function addAlert(req: any, res: any) {
 	const { userId } = req;
 	const { entity, checkinDate, checkoutDate, enabled } = req.body;
 
@@ -100,7 +101,7 @@ async function addAlert(req, res) {
 	}
 }
 
-async function deleteAlert(req, res) {
+async function deleteAlert(req: any, res: any) {
 	try {
 		const { id } = req.params;
 		const { userId } = req;
@@ -112,7 +113,7 @@ async function deleteAlert(req, res) {
 			userId: ObjectId(userId),
 		});
 
-		const newAlerts = emailJob.alerts.filter((alertId) => {
+		const newAlerts = emailJob?.alerts.filter((alertId: any) => {
 			return !alertId.equals(ObjectId(id));
 		});
 
@@ -125,7 +126,7 @@ async function deleteAlert(req, res) {
 		);
 
 		res.status(200).send();
-	} catch (err) {
+	} catch (err: any) {
 		console.log('error deleting alert: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,
@@ -134,7 +135,7 @@ async function deleteAlert(req, res) {
 	}
 }
 
-async function updateAlert(req, res) {
+async function updateAlert(req: any, res: any) {
 	try {
 		const { alert } = req.body;
 		const updatedAlert = await Alert.findOneAndUpdate(
@@ -146,7 +147,7 @@ async function updateAlert(req, res) {
 		);
 
 		res.send(updatedAlert);
-	} catch (err) {
+	} catch (err: any) {
 		console.log('error updating alert: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,

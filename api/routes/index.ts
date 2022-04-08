@@ -1,29 +1,29 @@
-const express = require('express');
+import Alert from '../models/Alert';
+import User from '../models/User';
 
-const Alert = require('../models/Alert');
+import express, { Request, Response } from 'express';
 
-const auth = require('../middleware/checkAuth');
+import checkAuth from '../middleware/checkAuth';
 
 const router = express.Router();
 
-const mainController = require('../controllers/index');
+const mainController = require('../controllers/index.ts');
 const {
 	getAvailableCampsites,
 	getAvailablePermits,
 } = require('../helpers/recreationGovApi');
-const User = require('../models/User');
 
-router.get('/alerts', auth, mainController.getAlerts);
-router.post('/alert', auth, mainController.addAlert);
-router.delete('/alert/:id', auth, mainController.deleteAlert);
-router.put('/alert/:id', auth, mainController.updateAlert);
+router.get('/alerts', checkAuth, mainController.getAlerts);
+router.post('/alert', checkAuth, mainController.addAlert);
+router.delete('/alert/:id', checkAuth, mainController.deleteAlert);
+router.put('/alert/:id', checkAuth, mainController.updateAlert);
 
-router.get('/user', auth, (req, res) => {
+router.get('/user', checkAuth, (req: Request, res) => {
 	res.send(req.user);
 });
 router.get('/users', mainController.getUsers);
 router.post('/user', mainController.addUser);
-router.put('/user', auth, async (req, res) => {
+router.put('/user', checkAuth, async (req: Request, res) => {
 	const { user } = req.body;
 	try {
 		const updatedUser = await User.findByIdAndUpdate(
@@ -32,7 +32,7 @@ router.put('/user', auth, async (req, res) => {
 			{ new: true }
 		);
 		res.send(updatedUser);
-	} catch (err) {
+	} catch (err: any) {
 		console.log('error updating user: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,
@@ -40,7 +40,7 @@ router.put('/user', auth, async (req, res) => {
 		});
 	}
 });
-router.get('/user/alerts', auth, async (req, res) => {
+router.get('/user/alerts', checkAuth, async (req: Request, res) => {
 	// fetch all alerts associated with authenticated user
 	try {
 		const alerts = await Alert.find({ userId: req.userId }); // should both be ObjectId types
@@ -70,7 +70,7 @@ router.post('/availableCampsites', async (req, res) => {
 				'Entity not found. Please choose an entity from the selected list.'
 			);
 		}
-	} catch (err) {
+	} catch (err: any) {
 		console.log('err getAvailableCampsites: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,
@@ -92,7 +92,7 @@ router.post('/availablePermits', async (req, res) => {
 				'Campground not found. Please choose a campground from the selected list.'
 			);
 		}
-	} catch (err) {
+	} catch (err: any) {
 		console.log('err getAvailablePermits: ', err);
 		res.status(err.status || 500).send({
 			status: err.status || 500,

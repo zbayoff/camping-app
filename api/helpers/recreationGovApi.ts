@@ -1,14 +1,44 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 
-const Axios = require('axios');
-const moment = require('moment');
+import Axios from 'axios';
+import moment from 'moment';
 
 require('dotenv').config();
 
-const checkCampsites = (response, startDate, endDate) => {
-	const availableSites = [];
-	Object.values(response.data.campsites).forEach((site) => {
+interface Site {
+	loop: string;
+	site: string;
+	siteId: string;
+}
+
+interface AvailableSites {
+	date: string;
+	sites: Site[];
+}
+
+interface Availability {
+	Date: string;
+}
+
+interface RecGovCampsite {
+	availabilities: any;
+	campsite_id: string;
+	campsite_reserve_type: string;
+	campsite_rules: null;
+	campsite_type: string;
+	capacity_rating: string;
+	loop: string;
+	max_num_people: Number;
+	min_num_people: Number;
+	quantities: {};
+	site: string;
+	type_of_use: string;
+}
+
+const checkCampsites = (response: any, startDate: Date, endDate: Date) => {
+	const availableSites: any[] = [];
+	Object.values(response.data.campsites).forEach((site: any) => {
 		for (const [key, value] of Object.entries(site.availabilities)) {
 			if (
 				value === 'Available' &&
@@ -41,7 +71,11 @@ const checkCampsites = (response, startDate, endDate) => {
 	return availableSitesArray;
 };
 
-const getAvailableCampsites = async (campground, startDate, endDate) => {
+const getAvailableCampsites = async (
+	campground: Number,
+	startDate: Date,
+	endDate: Date
+) => {
 	const format = 'YYYY-MM-DD';
 
 	const start = moment(startDate);
@@ -82,13 +116,14 @@ const getAvailableCampsites = async (campground, startDate, endDate) => {
 	return allCampsites.flat(Infinity);
 };
 
-const checkPermits = (response, startDate, endDate) => {
+const checkPermits = (response: any, startDate: Date, endDate: Date) => {
 	const availablePermits = Object.values(
-		Object.values(response.data.payload.availability)[0].date_availability
+		Object.values<any>(response.data.payload.availability)[0].date_availability
 	)
-		.map((date, index) => {
+		.map((date: any, index) => {
 			const keyDate = Object.keys(
-				Object.values(response.data.payload.availability)[0].date_availability
+				Object.values<any>(response.data.payload.availability)[0]
+					.date_availability
 			);
 
 			return {
@@ -106,7 +141,11 @@ const checkPermits = (response, startDate, endDate) => {
 	return availablePermits;
 };
 
-const getAvailablePermits = async (permit, startDate, endDate) => {
+const getAvailablePermits = async (
+	permit: string,
+	startDate: Date,
+	endDate: Date
+) => {
 	const format = 'YYYY-MM-DD';
 
 	const start = moment(startDate);
@@ -142,7 +181,4 @@ const getAvailablePermits = async (permit, startDate, endDate) => {
 	return allPermits.flat(Infinity);
 };
 
-module.exports = {
-	getAvailableCampsites,
-	getAvailablePermits,
-};
+export { getAvailableCampsites, getAvailablePermits };

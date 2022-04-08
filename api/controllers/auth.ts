@@ -3,9 +3,9 @@ const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const User = require('../models/User');
+import User from '../models/User';
 
-const signJwtToken = (user, res) => {
+const signJwtToken = (user: any, res: any) => {
 	const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
 		expiresIn: '7 days',
 	});
@@ -29,7 +29,7 @@ const signJwtToken = (user, res) => {
 };
 
 // register/login user
-const auth = async (req, res) => {
+const authController = async (req: any, res: any) => {
 	const { token } = req.body;
 	const ticket = await client.verifyIdToken({
 		idToken: token,
@@ -78,6 +78,4 @@ const auth = async (req, res) => {
 	}
 };
 
-module.exports = {
-	auth,
-};
+export default authController;

@@ -6,6 +6,8 @@
 		"@types/cookie-parser": "^1.4.2",
 		"@types/jest": "^27.4.1",
 		"@types/js-cookie": "^3.0.1",
+		"@types/jsonwebtoken": "^8.5.8",
+		"@types/mongoose": "^5.11.97",
 		"@types/node": "^17.0.23",
 		"@types/react": "^17.0.43",
 		"@types/react-dom": "^17.0.14",
@@ -31,18 +33,12 @@
 		"start": "node ./dist/webapp.js",
 		"dev-client": "cd frontend && yarn start",
 		"dev-server": "nodemon ./api/webapp.ts",
-
 		"webapp": "node ./dist/webapp.js",
-
-		"heroku-postbuild": "tsc & cd frontend/ && yarn install && yarn run build",
-		
-		"build-ts": "tsc"
-		
+		"heroku-postbuild": "tsc & cd frontend/ && yarn install && yarn run build"
 	},
 	"devDependencies": {
 		"@types/dotenv": "^8.2.0",
 		"@types/express": "^4.17.13",
-		"@types/mongoose": "^5.11.97",
 		"@types/morgan": "^1.9.3",
 		"babel-eslint": "^10.1.0",
 		"eslint": "^7.32.0",
@@ -54,6 +50,7 @@
 		"eslint-plugin-react": "^7.25.1",
 		"prettier": "^2.3.2",
 		"serverless-dotenv-plugin": "^3.10.0",
+		"serverless-plugin-typescript": "^2.1.2",
 		"ts-node": "^10.7.0"
 	}
 }

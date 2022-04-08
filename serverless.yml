@@ -33,6 +33,11 @@ provider:
   lambdaHashingVersion: 20201221
   profile: serverless-campsite-profile
 
+
+plugins:
+  - serverless-plugin-typescript
+
+
 functions:
   availability:
     handler: handler.availability

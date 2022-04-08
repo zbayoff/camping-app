@@ -3,27 +3,25 @@
 /* eslint-disable no-console */
 /* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-const Aws = require('aws-sdk');
-const moment = require('moment');
-const mongoose = require('mongoose');
+import Aws from 'aws-sdk';
+import moment from 'moment';
+import mongoose from 'mongoose';
 
-const {
+import {
 	findUser,
 	// findAlerts,
 	findEmailJobs,
 	findAlertsById,
-} = require('./api/helpers/index');
+} from './api/helpers/index';
 
-const EmailJob = require('./api/models/EmailJob');
-
-const { getAvailableCampsites } = require('./api/helpers/recreationGovApi');
+import EmailJob, { EmailJobInterface } from './api/models/EmailJob';
+import { UserSchema } from './api/models/User';
+import { getAvailableCampsites } from './api/helpers/recreationGovApi';
 
 require('dotenv').config();
 
 mongoose
-	.connect(process.env.MONGO_CONNECTION_STRING, {
-		useNewUrlParser: true,
-	})
+	.connect(process.env.MONGO_CONNECTION_STRING)
 	.then(() => {
 		console.log('Successfully connected to the database');
 	})
@@ -38,7 +36,11 @@ const Ses = new Aws.SES({
 	region: 'us-east-1',
 });
 
-const sendEmail = async (availableCampgrounds, user, emailJob) => {
+const sendEmail = async (
+	availableCampgrounds: any,
+	user: UserSchema,
+	emailJob: EmailJobInterface
+) => {
 	let subject = '';
 	let data = '';
 
@@ -53,16 +55,16 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
     <body>
     
     ${availableCampgrounds
-			.map((availableCampground) => {
+			.map((availableCampground: any) => {
 				return `
 				<h2 style="text-transform:capitalize; font-family: 'Roboto', sans-serif;">Available sites for campground: ${
 					availableCampground.name
 				}</h2>
 				${availableCampground.availabilities
-					.sort((a, b) =>
+					.sort((a: any, b: any) =>
 						moment(a.date, 'DD-MM-YYYY').diff(moment(b.date, 'DD-MM-YYYY'))
 					)
-					.map((availability) => {
+					.map((availability: any) => {
 						return `
 						<h3 style="font-family: 'Roboto', sans-serif;">Date: ${moment
 							.utc(availability.date)
@@ -71,7 +73,7 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 						<ul style="font-family: 'Roboto', sans-serif;">
 						${availability.sites
 							.slice(0, 5)
-							.map((site) => {
+							.map((site: any) => {
 								return `<li style="font-family: 'Roboto', sans-serif;"><a style="font-family: 'Roboto', sans-serif;" href="https://www.recreation.gov/camping/campsites/${site.siteId}#site-availability" target="_blank">Loop ${site.loop}, site ${site.site}</a></li>`;
 							})
 							.join('')}
@@ -115,7 +117,7 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 		.then(async () => {
 			console.log('email sent!');
 			await EmailJob.findByIdAndUpdate(emailJob._id, {
-				lastRunAt: Date.now(),
+				lastRunAt: new Date(),
 			});
 			// update EmailJob last Finished At
 		})
@@ -124,7 +126,7 @@ const sendEmail = async (availableCampgrounds, user, emailJob) => {
 		});
 };
 
-const availability = async (event, context) => {
+const availability = async (event: any, context: any) => {
 	// loop through emailJobs (which contain one or multiple alerts for a user)
 	// run getAvailableCampsites for each alert and store in variable, then email all to user, and update the emailJob with LastFinshedAt...
 
@@ -144,9 +146,11 @@ const availability = async (event, context) => {
 
 		// don't query Rec API if last email sent to user is not past their specified frequency
 		// but need to deal with case when user first creates EmailJob and emailJob.lastRunAt is ""
+
 		if (
 			!emailJob.lastRunAt ||
 			(emailJob.lastRunAt &&
+				user &&
 				moment
 					.utc()
 					.isAfter(
@@ -162,6 +166,8 @@ const availability = async (event, context) => {
 				const alert = await findAlertsById(alertId);
 
 				if (
+					alert &&
+					user &&
 					alert.enabled &&
 					moment.utc().isBefore(moment.utc(alert.checkoutDate))
 				) {
@@ -196,7 +202,7 @@ const availability = async (event, context) => {
 				}
 			}
 
-			if (availableCampgrounds.length) {
+			if (availableCampgrounds.length && user) {
 				try {
 					await sendEmail(availableCampgrounds, user, emailJob);
 				} catch (e) {
