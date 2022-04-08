@@ -7,22 +7,22 @@ import checkAuth from '../middleware/checkAuth';
 
 const router = express.Router();
 
-const mainController = require('../controllers/index.ts');
+import {getAlerts, addAlert, deleteAlert, updateAlert, getUsers, addUser } from '../controllers/index'
 const {
 	getAvailableCampsites,
 	getAvailablePermits,
 } = require('../helpers/recreationGovApi');
 
-router.get('/alerts', checkAuth, mainController.getAlerts);
-router.post('/alert', checkAuth, mainController.addAlert);
-router.delete('/alert/:id', checkAuth, mainController.deleteAlert);
-router.put('/alert/:id', checkAuth, mainController.updateAlert);
+router.get('/alerts', checkAuth, getAlerts);
+router.post('/alert', checkAuth, addAlert);
+router.delete('/alert/:id', checkAuth, deleteAlert);
+router.put('/alert/:id', checkAuth, updateAlert);
 
 router.get('/user', checkAuth, (req: Request, res) => {
 	res.send(req.user);
 });
-router.get('/users', mainController.getUsers);
-router.post('/user', mainController.addUser);
+router.get('/users', getUsers);
+router.post('/user', addUser);
 router.put('/user', checkAuth, async (req: Request, res) => {
 	const { user } = req.body;
 	try {

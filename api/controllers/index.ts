@@ -156,7 +156,7 @@ async function updateAlert(req: any, res: any) {
 	}
 }
 
-module.exports = {
+export {
 	addUser,
 	getUser,
 	getUsers,
