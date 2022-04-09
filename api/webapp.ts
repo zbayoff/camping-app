@@ -60,11 +60,11 @@ const authRoute = require('./routes/auth');
 webApp.use('/api', routes);
 webApp.use('/auth', authRoute);
 
-console.log(path.join(__dirname, '../frontend/build'))
+console.log(path.join(__dirname, '../../frontend/build'))
 
-webApp.use(express.static(path.join(__dirname, '../frontend/build')));
+webApp.use(express.static(path.join(__dirname, '../../frontend/build')));
 webApp.get('/*', (req, res) => {
-	res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+	res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
 });
 
 // webApp.get('/*', (req, res) => {
