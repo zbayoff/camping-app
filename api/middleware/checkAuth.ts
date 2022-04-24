@@ -6,7 +6,7 @@ const checkAuth = (req: Request, res: Response, next: any) => {
 	// decode token
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, process.env.JWT_SECRET, (err: any, decoded: any) => {
+		jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: any) => {
 			if (err) {
 				// would like to redirect user to /login page
 				res.status(401).send({

@@ -12,4 +12,4 @@ router.delete('/google', checkAuth, (req, res) => {
 	res.status(200).json({ deleted: true });
 });
 
-module.exports = router;
+export default router;

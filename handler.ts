@@ -21,7 +21,7 @@ import { getAvailableCampsites } from './api/helpers/recreationGovApi';
 require('dotenv').config();
 
 mongoose
-	.connect(process.env.MONGO_CONNECTION_STRING)
+	.connect(process.env.MONGO_CONNECTION_STRING as string)
 	.then(() => {
 		console.log('Successfully connected to the database');
 	})
@@ -97,7 +97,7 @@ const sendEmail = async (
 	// await fs.writeFile(`${user.email}-test.html`, data);
 
 	return Ses.sendEmail({
-		Source: process.env.FROM_EMAIL,
+		Source: process.env.FROM_EMAIL as string,
 		Destination: {
 			ToAddresses: [user.email],
 		},
@@ -210,7 +210,7 @@ const availability = async (event: any, context: any) => {
 				}
 			}
 		} else {
-			console.log('currently not past user frequency');
+			console.log(`currently not past user frequency for user: ${user?.firstName}`);
 		}
 	}
 };

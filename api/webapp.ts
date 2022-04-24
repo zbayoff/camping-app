@@ -12,6 +12,9 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 
+import routes from './routes/index';
+import authRoute from './routes/auth';
+
 // console.log(__dirname + '/.env')
 
 dotenv.config({ path: __dirname + '/.env' });
@@ -54,26 +57,14 @@ mongoose
 		process.exit();
 	});
 
-const routes = require('./routes/index');
-const authRoute = require('./routes/auth');
-
 webApp.use('/api', routes);
 webApp.use('/auth', authRoute);
 
-console.log(path.join(__dirname, '../../frontend/build'))
 
 webApp.use(express.static(path.join(__dirname, '../../frontend/build')));
 webApp.get('/*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
 });
-
-// webApp.get('/*', (req, res) => {
-// 	res.sendFile(path.join(__dirname, 'path/to/your/index.html'), (err) => {
-// 		if (err) {
-// 			res.status(500).send(err);
-// 		}
-// 	});
-// });
 
 webApp.listen(webAppPort, () => {
 	console.log(`WebApp listening at port:${webAppPort}`);
