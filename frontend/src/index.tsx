@@ -14,7 +14,7 @@ datadogRum.init({
 	site: 'datadoghq.com',
 	service: 'camping_app',
 	// Specify a version number to identify the deployed version of your application in Datadog
-	version: process.env.REACT_APP_HEROKU_RELEASE_VERSION,
+	version: '1.0.0',
 	sampleRate: 100,
 	trackInteractions: true,
 	defaultPrivacyLevel: 'mask-user-input',

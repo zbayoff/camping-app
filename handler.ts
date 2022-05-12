@@ -115,11 +115,15 @@ const sendEmail = async (
 		.promise()
 		.then(async () => {
 			console.log('email sent!');
-			await EmailJob.findByIdAndUpdate(emailJob._id, {
-				lastRunAt: new Date(),
-			}, {
-				timestamps: false // disable updating the `updatedAt` field so it doesn't change when lastRunAt is updated
-			  });
+			await EmailJob.findByIdAndUpdate(
+				emailJob._id,
+				{
+					lastRunAt: new Date(),
+				},
+				{
+					timestamps: false, // disable updating the `updatedAt` field so it doesn't change when lastRunAt is updated
+				}
+			);
 			// update EmailJob last Finished At
 		})
 		.catch((err) => {
@@ -197,9 +201,7 @@ const availability = async (event: any, context: any) => {
 					} catch (err) {
 						console.log('err getAvailableCampsites: ', err);
 					}
-				} 
-				
-				else {
+				} else {
 					console.log(
 						`alert ${alert?.entity.name} for user ${user?.firstName} (${user?.email} is not enabled or alert checkout date has passed. not fetching from Rec API.`
 					);
