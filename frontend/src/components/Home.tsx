@@ -103,12 +103,12 @@ const Home = () => {
 					setCampgroundSuggestions(data.inventory_suggestions);
 				}
 			} catch (err) {
-				console.log('error fetching campgrounds: ', err);
+				console.error('error fetching campgrounds: ', err);
 
 				if (axios.isAxiosError(err)) {
 					const axiosError = err as AxiosError;
 
-					console.log('Axios error: ', axiosError.response);
+					console.error('Axios error: ', axiosError.response);
 
 					setMessage(
 						'Error fetching campgrounds: ' +
@@ -169,11 +169,11 @@ const Home = () => {
 				setAvailableEntities([]);
 			}
 		} catch (err) {
-			console.log('Error fetching available campsites: ', err);
+			console.error('Error fetching available campsites: ', err);
 			if (axios.isAxiosError(err)) {
 				const axiosError = err as AxiosError;
 
-				console.log('Axios error: ', axiosError.response);
+				console.error('Axios error: ', axiosError.response);
 
 				setMessage(
 					'Error fetching campgrounds: ' +

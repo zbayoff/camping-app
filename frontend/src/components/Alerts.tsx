@@ -43,11 +43,11 @@ const Alerts = () => {
 					setRows([]);
 				}
 			} catch (err) {
-				console.log('error  fetching alerts response', err);
+				console.error('error  fetching alerts response', err);
 				if (axios.isAxiosError(err)) {
 					const axiosError = err as AxiosError;
 
-					console.log('Axios error: ', axiosError.response);
+					console.error('Axios error: ', axiosError.response);
 				}
 			}
 		};

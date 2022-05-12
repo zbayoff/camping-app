@@ -66,11 +66,11 @@ const Settings = () => {
 
 			// need to update "user" Context
 		} catch (err) {
-			console.log('err updating settings: ', err);
+			console.error('err updating settings: ', err);
 			if (axios.isAxiosError(err)) {
 				const axiosError = err as AxiosError;
 
-				console.log('Axios error: ', axiosError.response);
+				console.error('Axios error: ', axiosError.response);
 
 				setMessage(
 					'Error updating user settings: ' +

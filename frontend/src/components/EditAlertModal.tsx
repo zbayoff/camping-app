@@ -81,12 +81,12 @@ const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 
 			handleClose();
 		} catch (err) {
-			console.log('err updating alert: ', err);
+			console.error('err updating alert: ', err);
 
 			if (axios.isAxiosError(err)) {
 				const axiosError = err as AxiosError;
 
-				console.log('Axios error: ', axiosError.response);
+				console.error('Axios error: ', axiosError.response);
 
 				setMessage(
 					'Error updating user alert: ' +

@@ -89,12 +89,12 @@ const CreateAlertModal = ({
 					handleClose();
 					history.push('/alerts');
 				} catch (err) {
-					console.log('err adding alert: ', err);
+					console.error('err adding alert: ', err);
 
 					if (axios.isAxiosError(err)) {
 						const axiosError = err as AxiosError;
 
-						console.log('Axios error: ', axiosError.response);
+						console.error('Axios error: ', axiosError.response);
 
 						setMessage(
 							'Error adding alert: ' + axiosError.response?.data.message + ' '

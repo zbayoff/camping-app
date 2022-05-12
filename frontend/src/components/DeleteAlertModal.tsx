@@ -50,11 +50,11 @@ const DeleteAlertModal = ({
 
 			handleClose();
 		} catch (err) {
-			console.log('err deleting alert: ', err);
+			console.error('err deleting alert: ', err);
 			if (axios.isAxiosError(err)) {
 				const axiosError = err as AxiosError;
 
-				console.log('Axios error: ', axiosError.response);
+				console.error('Axios error: ', axiosError.response);
 
 				setMessage(
 					'Error deleting user alert: ' +
