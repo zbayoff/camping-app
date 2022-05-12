@@ -1,3 +1,5 @@
+import './tracer'; // must come before importing any instrumented module.
+
 import express from 'express';
 // import dotenv from 'dotenv';
 
@@ -59,7 +61,6 @@ mongoose
 
 webApp.use('/api', routes);
 webApp.use('/auth', authRoute);
-
 
 webApp.use(express.static(path.join(__dirname, '../../frontend/build')));
 webApp.get('/*', (req, res) => {
