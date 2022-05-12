@@ -7,6 +7,7 @@ interface NotificationSettingSchema {
 }
 
 export interface UserSchema {
+	_id: string;
 	googleId: string;
 	firstName: string;
 	lastName: string;
