@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	if (user) {
 		datadogRum.setUser({
 			id: user._id,
-			name: user.firstName + user.lastName,
+			name: user.firstName + " " + user.lastName,
 			email: user.email,
 		});
 	}
