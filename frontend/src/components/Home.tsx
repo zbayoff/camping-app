@@ -142,8 +142,11 @@ const Home = () => {
 
 	const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		// fetch availabilites
 
+		// clear suggestions
+		setCampgroundSuggestions([]);
+
+		// fetch availabilites
 		try {
 			const apiUrl =
 				campgroundValue.entityType === 'permit'
@@ -246,7 +249,7 @@ const Home = () => {
 						align="center"
 						color="primary"
 						component="h1"
-						variant="h3"
+						variant="h1"
 					>
 						Find Your Next Campsite
 					</Typography>
@@ -426,7 +429,12 @@ const Home = () => {
 												}
 											/>
 											{suggestion.preview_image_url ? (
-												<Box sx={{ display: 'flex', alignItems: 'center' }}>
+												<Box
+													sx={{
+														alignItems: 'center',
+														display: { xs: 'none', sm: 'flex' },
+													}}
+												>
 													<img
 														alt="campground preview"
 														style={{

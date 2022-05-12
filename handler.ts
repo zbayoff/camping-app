@@ -45,7 +45,6 @@ const sendEmail = async (
 	let data = '';
 
 	subject = 'Campsites Available!!';
-	// data = `${campsites.length} available campsites found. GO -> ${campSiteUrl}`;
 
 	data = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>
     <head>
@@ -118,7 +117,9 @@ const sendEmail = async (
 			console.log('email sent!');
 			await EmailJob.findByIdAndUpdate(emailJob._id, {
 				lastRunAt: new Date(),
-			});
+			}, {
+				timestamps: false // disable updating the `updatedAt` field so it doesn't change when lastRunAt is updated
+			  });
 			// update EmailJob last Finished At
 		})
 		.catch((err) => {
@@ -129,7 +130,6 @@ const sendEmail = async (
 const availability = async (event: any, context: any) => {
 	// loop through emailJobs (which contain one or multiple alerts for a user)
 	// run getAvailableCampsites for each alert and store in variable, then email all to user, and update the emailJob with LastFinshedAt...
-
 	// to optimize mongo db connection reuse for Lambda
 	context.callbackWaitsForEmptyEventLoop = false;
 
@@ -146,7 +146,7 @@ const availability = async (event: any, context: any) => {
 
 		// don't query Rec API if last email sent to user is not past their specified frequency
 		// but need to deal with case when user first creates EmailJob and emailJob.lastRunAt is ""
-
+		// if user adds or modifies and alert, restart the emailjob
 		if (
 			!emailJob.lastRunAt ||
 			(emailJob.lastRunAt &&
@@ -160,7 +160,9 @@ const availability = async (event: any, context: any) => {
 								user.notificationSettings.frequencyNumber,
 								user.notificationSettings.frequencyGranularity
 							)
-					))
+					)) ||
+			(emailJob.updatedAt &&
+				moment.utc(emailJob.updatedAt).isAfter(moment.utc(emailJob.lastRunAt)))
 		) {
 			for (const alertId of emailJob.alerts) {
 				const alert = await findAlertsById(alertId);
@@ -195,9 +197,11 @@ const availability = async (event: any, context: any) => {
 					} catch (err) {
 						console.log('err getAvailableCampsites: ', err);
 					}
-				} else {
+				} 
+				
+				else {
 					console.log(
-						'alert is not enabled or alert checkout date has passed. not fetching from Rec API.'
+						`alert ${alert?.entity.name} for user ${user?.firstName} (${user?.email} is not enabled or alert checkout date has passed. not fetching from Rec API.`
 					);
 				}
 			}
@@ -210,7 +214,9 @@ const availability = async (event: any, context: any) => {
 				}
 			}
 		} else {
-			console.log(`currently not past user frequency for user: ${user?.firstName}`);
+			console.log(
+				`currently not past user frequency for user: ${user?.firstName}`
+			);
 		}
 	}
 };
@@ -218,7 +224,7 @@ const availability = async (event: any, context: any) => {
 // (async () => {
 // 	// IIFE to give access to async/await
 // 	await availability(null, {});
-// 	process.exit();
+// process.exit();
 // })();
 
 module.exports = {

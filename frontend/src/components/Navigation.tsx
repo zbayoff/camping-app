@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import Login from './Login';
@@ -25,6 +25,8 @@ const Navigation = () => {
 	const [anchorElNav, setAnchorElNav] = useState<Element | null>(null);
 	const [anchorElUser, setAnchorElUser] = useState<Element | null>(null);
 
+	const [scroll, setScroll] = useState(false);
+
 	const handleOpenNavMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorElNav(event.currentTarget);
 	};
@@ -40,9 +42,17 @@ const Navigation = () => {
 		setAnchorElUser(null);
 	};
 
+	useEffect(() => {
+		window.addEventListener('scroll', () => {
+			setScroll(window.scrollY > 1);
+		});
+	}, [scroll]);
+
 	return (
 		<AppBar
-			className={`Navbar ${pathname === '/' ? 'home' : ''}`}
+			className={`Navbar ${scroll ? 'scrolled' : ''} ${
+				pathname === '/' ? 'home' : ''
+			}`}
 			position="fixed"
 		>
 			<Container maxWidth="xl">

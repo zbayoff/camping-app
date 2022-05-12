@@ -1,3 +1,7 @@
+-- Testing serverless function locally
+serverless invoke local --function availability
+
+-- Deploying serverless function:
 serverless deploy --aws-profile serverless-campsite-profile
 
 deploy heroku: 

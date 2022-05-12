@@ -7,7 +7,14 @@ import checkAuth from '../middleware/checkAuth';
 
 const router = express.Router();
 
-import {getAlerts, addAlert, deleteAlert, updateAlert, getUsers, addUser } from '../controllers/index'
+import {
+	getAlerts,
+	addAlert,
+	deleteAlert,
+	updateAlert,
+	getUsers,
+	addUser,
+} from '../controllers/index';
 const {
 	getAvailableCampsites,
 	getAvailablePermits,
@@ -94,10 +101,21 @@ router.post('/availablePermits', async (req, res) => {
 		}
 	} catch (err: any) {
 		console.log('err getAvailablePermits: ', err);
-		res.status(err.status || 500).send({
-			status: err.status || 500,
-			message: err.message || 'Internal Server Error',
-		});
+
+		if (err?.response?.status === 404) {
+			res.status(err?.response?.status || 500).send({
+				status: err?.response?.status || 500,
+				message:
+					'Availabilities for this entity are currently not supported yet (permits for multi-entry trails). Check back again later.',
+			});
+		} else {
+			res.status(err.status || 500).send({
+				status: err.status || 500,
+				message: err.message || 'Internal Server Error',
+			});
+		}
+
+		
 		// next(err);
 	}
 });

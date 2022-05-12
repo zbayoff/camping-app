@@ -9,7 +9,7 @@ body {
 	background-image: url('./images/yosemite-bg-image-min.jpg');
 
 	.header-wrapper {
-		transform: translateY(75px);
+		transform: translateY(60px);
 		margin: 0 auto;
 
 		@media (min-width: 768px) {
@@ -120,12 +120,15 @@ body {
 }
 
 header.Navbar {
+
 	background-color: white;
 
-	&.home {
+	&.home:not(.scrolled)  {
 		background-color: transparent;
 		box-shadow: none;
 	}
+
+
 
 	.avatar {
 		border-radius: 50%;
