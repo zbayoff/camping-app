@@ -3,6 +3,7 @@ declare global {
 		interface ProcessEnv {
 			MONGO_CONNECTION_STRING: string;
 			GOOGLE_CLIENT_ID: string;
+			HEROKU_RELEASE_VERSION: string
 			JWT_SECRET: string;
 			COOKIE_SESSION_KEY: string;
 			FROM_EMAIL: string;
