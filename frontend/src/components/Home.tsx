@@ -16,7 +16,6 @@ import {
 	Avatar,
 	Button,
 	Grid,
-	IconButton,
 	Link,
 	List,
 	ListItem,
@@ -25,15 +24,16 @@ import {
 	Typography,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import SearchIcon from '@mui/icons-material/Search';
-import AddAlertIcon from '@mui/icons-material/AddAlert';
+import NotificationAddIcon from '@mui/icons-material/NotificationAdd';
+
 import { SvgIcon } from '@mui/material';
-import { grey } from '@mui/material/colors';
 import moment from 'moment';
-import Login from './Login';
 import CreateAlertModal from './CreateAlertModal';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
+
+import { TentIconPath } from './SVGIconPaths';
+import useLogin from '../hooks/useLogin';
 
 export type Site = {
 	loop: string;
@@ -90,6 +90,8 @@ const Home = () => {
 
 	const inputEl = useRef(null);
 
+	const { signIn } = useLogin();
+
 	// TODO: Add support for Permits from Rec API
 	const fetchCampgrounds = async (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -138,7 +140,7 @@ const Home = () => {
 		delayedQuery(event);
 	};
 
-	const delayedQuery = useMemo(() => _.debounce(fetchCampgrounds, 500), []);
+	const delayedQuery = useMemo(() => _.debounce(fetchCampgrounds, 500), []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -222,13 +224,6 @@ const Home = () => {
 		}
 	};
 
-	// const isEntityPermit = (
-	// 	entity: CampgroundAvailability | PermitAvailability
-	// ) => {
-	// 	// check if the specified property is in the given object
-	// 	return 'remaining' in entity;
-	// };
-
 	const isEntityPermit = (
 		entity: CampgroundAvailability | PermitAvailability
 	): entity is PermitAvailability => {
@@ -241,351 +236,621 @@ const Home = () => {
 		return (entity as CampgroundAvailability).sites !== undefined;
 	};
 
+	const inputLabelTextStyle = {
+		fontSize: '18px',
+		fontWeight: '600',
+		textTransform: 'uppercase',
+		letterSpacing: '0.1rem',
+		color: 'primary.main',
+	} as const;
+
+	const inputPlaceholderStyle = {
+		letterSpacing: '0.1rem',
+		paddingTop: '10px',
+		fontWeight: 300,
+		color: 'primary.main',
+		opacity: '1 !important',
+		'&::placeholder': {
+			opacity: 1,
+		},
+	} as const;
+
 	return (
 		<div className="Home">
-			<div style={{ padding: '0 15px', width: '100%', height: '100%' }}>
-				<Box className="header-wrapper">
-					<Typography
-						align="center"
-						color="primary"
-						component="h1"
-						variant="h1"
-					>
-						Find Your Next Campsite
-					</Typography>
-					<Typography
-						align="center"
-						color="primary"
-						component="h3"
-						variant="body2"
-						sx={{ textTransform: 'uppercase' }}
-					>
-						Applicable for national parks, lakeshores &amp; forests
-					</Typography>
-				</Box>
-				<Box className="form-wrapper" style={{ position: 'relative' }}>
+			<div className="bg-image"></div>
+			<Box
+				className="form-wrapper"
+				style={{
+					position: 'relative',
+					paddingBottom: '1rem',
+					paddingRight: '1rem',
+					paddingLeft: '1rem',
+				}}
+			>
+				<Box
+					sx={{
+						display: 'flex',
+						alignItems: 'center',
+						flexDirection: 'column',
+						backgroundColor: 'rgba(252, 247, 238, 0.85)',
+						borderRadius: '15px',
+					}}
+					p={3}
+				>
+					<Box>
+						<Typography
+							align="center"
+							color="secondary"
+							component="h3"
+							variant="body2"
+							sx={{
+								textTransform: 'uppercase',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								letterSpacing: '0.1rem',
+								fontSize: '20px',
+							}}
+						>
+							Applicable for national parks, lakeshores &amp; forests
+						</Typography>
+					</Box>
 					<Box
-						component="form"
 						className="search-form-container"
+						component="form"
 						sx={{
-							'& > :not(style)': { m: 1 },
+							width: '100%',
 						}}
 						autoComplete="off"
 						onSubmit={onSubmitHandler}
 					>
-						<TextField
-							className="campground-text-input"
-							id="standard-basic"
-							required
-							variant="standard"
-							placeholder="Campground Name"
-							label="Campground"
-							size="small"
-							value={campgroundValue.displayName}
-							onChange={onCampgroundChangeHandler}
-							InputProps={{ disableUnderline: true }}
-							inputProps={{ style: { textTransform: 'capitalize' } }}
-							InputLabelProps={{
-								shrink: true,
-							}}
-							ref={inputEl}
-							onBlur={() => onBlurField()}
-							onFocus={() => onFocusFieldFirstName()}
-						/>
-						<div
-							className="divider"
-							style={{
-								alignSelf: 'center',
-								borderRight: '1px solid #DDDDDD',
-								flex: '0 0 0px !important',
-								height: '32px',
-							}}
-						></div>
-						<LocalizationProvider dateAdapter={AdapterDateFns}>
-							<DateRangePicker
-								className="date-range-container"
-								disablePast
-								calendars={1}
-								value={checkInOutDates}
-								onChange={(newValue) => {
-									setCheckInOutDates(newValue);
-									setOpenAvailabilities(false);
-								}}
-								renderInput={(startProps, endProps) => (
-									<React.Fragment>
-										<TextField
-											{...startProps}
-											id="standard-basic"
-											label="Checkin"
-											variant="standard"
-											size="small"
-											InputProps={{ disableUnderline: true }}
-											InputLabelProps={{
-												shrink: true,
-											}}
-											style={{ margin: '10px 0 0 0' }}
-											required
-										/>
-										<div
-											style={{
-												alignSelf: 'center',
-												borderRight: '1px solid #DDDDDD',
-												flex: '0 0 0px !important',
-												height: '32px',
-												marginRight: '15px',
-											}}
-										></div>
-										<TextField
-											{...endProps}
-											id="standard-basic"
-											label="Checkout"
-											variant="standard"
-											size="small"
-											InputProps={{ disableUnderline: true }}
-											InputLabelProps={{
-												shrink: true,
-											}}
-											style={{ margin: '10px 0 0 0' }}
-											required
-										/>
-									</React.Fragment>
-								)}
-							/>
-						</LocalizationProvider>
-						<Button
-							className="search-button"
-							type="submit"
-							variant="contained"
-							color="primary"
-							startIcon={<SearchIcon />}
-						>
-							Search
-						</Button>
-					</Box>
-					{campgroundSuggestions.length && openSuggestions ? (
-						<Box className="suggestions-wrapper">
-							<List>
-								{campgroundSuggestions.map((suggestion) => {
-									return (
-										<ListItem
-											secondaryAction={
-												<IconButton edge="end" aria-label="open in new window">
-													<Link
-														target="_blank"
-														rel="noreferrer"
-														href={`https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`}
-													>
-														<OpenInNewIcon />
-													</Link>
-												</IconButton>
-											}
-											key={suggestion.entity_id}
-											style={{ cursor: 'pointer', height: '90px' }}
-											onMouseDown={(e) => e.preventDefault()} // to allow onClick to fire before onBlur
-											onClick={() => {
-												// setCampgroundSuggestions([]);
-												// need to trigger onCampgroundChangeHandler
-												// setOpenSuggestions(true);
+						<Grid container sx={{ alignItems: 'center' }}>
+							<Grid item xs={12} md={5}>
+								<div style={{ position: 'relative' }}>
+									<TextField
+										className="campground-text-input"
+										id="standard-basic"
+										required
+										variant="standard"
+										placeholder="Where are you exploring"
+										label="Campground Location"
+										size="small"
+										fullWidth
+										value={campgroundValue.displayName}
+										onChange={onCampgroundChangeHandler}
+										InputProps={{ disableUnderline: true }}
+										inputProps={{ sx: inputPlaceholderStyle }}
+										InputLabelProps={{
+											shrink: true,
+											sx: inputLabelTextStyle,
+										}}
+										ref={inputEl}
+										onBlur={() => onBlurField()}
+										onFocus={() => onFocusFieldFirstName()}
+									/>
 
-												setCampgroundValue({
-													displayName: suggestion.name.toLowerCase(),
-													entityId: suggestion.entity_id,
-													entityType: suggestion.entity_type,
-												});
-												setOpenSuggestions(false);
-												setOpenAvailabilities(false);
-												// setCampgroundName(suggestion.entity_id);
-											}}
+									{campgroundSuggestions.length && openSuggestions ? (
+										<Box
 											sx={{
-												// some styles
-												':hover': {
-													bgcolor: grey['200'],
+												padding: ' 0 15px',
+												borderTop: '2px solid',
+												borderColor: 'primary.main',
+												zIndex: 10,
+												'@media (min-width:899px)': {
+													position: 'absolute',
+													top: '68px',
+													width: '727px',
 												},
 											}}
 										>
-											<ListItemAvatar>
-												<Avatar sx={{ bgcolor: 'primary.main' }}>
-													<SvgIcon
-														viewBox={'0 0 24 24'}
-														style={{ width: '60px' }}
-													>
-														<path d="M6.17 6.045L1 18h3.795l1.547-7.756L7.876 18h3.91L6.718 6.041M17.726 6l-9.348.036L13.453 18H23"></path>
-													</SvgIcon>
-												</Avatar>
-											</ListItemAvatar>
-											<ListItemText
-												primary={
-													<Typography style={{ textTransform: 'capitalize' }}>
-														{suggestion.name.toLowerCase()}
-													</Typography>
-												}
-												secondary={
-													<Typography variant="caption">
-														{suggestion.parent_name}{' '}
-														{suggestion.city
-															? ` | Near ${suggestion.city}`
-															: null}
-													</Typography>
-												}
-											/>
-											{suggestion.preview_image_url ? (
+											<Box className="suggestions-wrapper" mb={2}>
+												<div>
+													<List>
+														{campgroundSuggestions.map((suggestion) => {
+															return (
+																<ListItem
+																	key={suggestion.entity_id}
+																	onMouseDown={(e) => e.preventDefault()} // to allow onClick to fire before onBlur
+																	onClick={() => {
+																		setCampgroundValue({
+																			displayName:
+																				suggestion.name.toLowerCase(),
+																			entityId: suggestion.entity_id,
+																			entityType: suggestion.entity_type,
+																		});
+																		setOpenSuggestions(false);
+																		setOpenAvailabilities(false);
+																	}}
+																	sx={{
+																		cursor: 'pointer',
+																		height: '100%',
+																		paddingTop: '10px',
+																		paddingBottom: '10px',
+																		':hover': {
+																			bgcolor: 'rgba(65, 93, 110, 0.2)',
+																		},
+																		':hover .MuiTypography-root': {
+																			color: 'primary.main',
+																		},
+
+																		':hover .tent-icon': {
+																			color: 'primary.main',
+																		},
+																	}}
+																>
+																	<ListItemAvatar>
+																		<Avatar
+																			sx={{
+																				bgcolor: 'unset',
+																				borderRadius: '0',
+																				height: '50px',
+																			}}
+																		>
+																			<SvgIcon
+																				className="tent-icon"
+																				sx={{ width: '100%', height: '100%' }}
+																				color="secondary"
+																				viewBox="0 0 79 75"
+																			>
+																				<TentIconPath />
+																			</SvgIcon>
+																		</Avatar>
+																	</ListItemAvatar>
+																	<ListItemText
+																		sx={{ marginRight: '1rem' }}
+																		primary={
+																			<Typography
+																				color="secondary"
+																				sx={{
+																					textTransform: 'capitalize',
+																					fontSize: '18px',
+																					letterSpacing: '0.1rem',
+																					fontWeight: 600,
+																				}}
+																			>
+																				{suggestion.name.toLowerCase()}
+																			</Typography>
+																		}
+																		secondary={
+																			<Typography
+																				color="secondary"
+																				variant="caption"
+																				sx={{
+																					fontSize: '12px',
+																					letterSpacing: '0.1rem',
+																					fontWeight: 300,
+																				}}
+																			>
+																				{suggestion.parent_name}{' '}
+																				{suggestion.city
+																					? ` | Near ${suggestion.city}`
+																					: null}
+																			</Typography>
+																		}
+																	/>
+																	{suggestion.preview_image_url ? (
+																		<Box
+																			sx={{
+																				alignItems: 'center',
+																				display: { xs: 'none', sm: 'flex' },
+																			}}
+																		>
+																			<Box sx={{ position: 'relative' }}>
+																				<Link
+																					target="_blank"
+																					rel="noreferrer"
+																					href={`https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`}
+																					sx={{
+																						display: 'flex',
+																						':hover': {
+																							transform: 'scale(1.05)',
+																							transition:
+																								'transform .2s ease-out',
+																						},
+																					}}
+																				>
+																					<img
+																						alt="campground preview"
+																						style={{
+																							borderRadius: '10px',
+																							height: '80px',
+																							width: '170px',
+																							objectFit: 'cover',
+																						}}
+																						src={suggestion.preview_image_url}
+																					/>
+																					<OpenInNewIcon
+																						sx={{
+																							color: 'white',
+																							position: 'absolute',
+																							right: '5px',
+																							bottom: '10px',
+																						}}
+																					/>
+																				</Link>
+																			</Box>
+																		</Box>
+																	) : null}
+																</ListItem>
+															);
+														})}
+													</List>
+												</div>
+											</Box>
+										</Box>
+									) : null}
+								</div>
+							</Grid>
+							<Grid item xs={12} md={5}>
+								<LocalizationProvider dateAdapter={AdapterDateFns}>
+									<DateRangePicker
+										className="m0"
+										PaperProps={{
+											sx: {
+												borderRadius: '15px',
+												backgroundColor: 'rgba(252, 247, 238, 0.85)',
+												margin: 0,
+											},
+										}}
+										disablePast
+										calendars={1}
+										value={checkInOutDates}
+										onChange={(newValue) => {
+											setCheckInOutDates(newValue);
+											setOpenAvailabilities(false);
+										}}
+										renderInput={(startProps, endProps) => (
+											<React.Fragment>
 												<Box
 													sx={{
-														alignItems: 'center',
-														display: { xs: 'none', sm: 'flex' },
+														alignSelf: 'center',
+														borderRight: '1px solid #54798F',
+														flex: '0 0 0px !important',
+														height: '60px',
+														marginRight: '2rem',
+														marginTop: '10px',
+														display: { xs: 'none', md: 'block' },
 													}}
-												>
-													<img
-														alt="campground preview"
-														style={{
-															borderRadius: '10px',
-															height: '70px',
-															objectFit: 'cover',
-														}}
-														width="100"
-														src={suggestion.preview_image_url}
-													/>
-												</Box>
-											) : null}
-										</ListItem>
-									);
-								})}
-							</List>
-						</Box>
-					) : null}
+												></Box>
+												<TextField
+													{...startProps}
+													id="standard-basic"
+													label="Check-in"
+													variant="standard"
+													size="small"
+													placeholder="mm/dd/yyyy"
+													fullWidth
+													InputLabelProps={{
+														shrink: true,
+														sx: inputLabelTextStyle,
+													}}
+													InputProps={{ disableUnderline: true }}
+													inputProps={{
+														sx: inputPlaceholderStyle,
+														...startProps.inputProps,
+													}}
+													style={{
+														margin: '10px 0 0 0',
+													}}
+													required
+												/>
+												<Box
+													sx={{
+														alignSelf: 'center',
+														borderRight: '1px solid #54798F',
+														flex: '0 0 0px !important',
+														height: '60px',
+														marginRight: '2rem',
+														marginTop: '10px',
+													}}
+												></Box>
+												<TextField
+													{...endProps}
+													id="standard-basic"
+													label="Check-out"
+													variant="standard"
+													size="small"
+													fullWidth
+													placeholder="mm/dd/yyyy"
+													InputProps={{ disableUnderline: true }}
+													inputProps={{
+														sx: inputPlaceholderStyle,
+														...endProps.inputProps,
+													}}
+													InputLabelProps={{
+														shrink: true,
+														sx: inputLabelTextStyle,
+													}}
+													style={{ margin: '10px 0 0 0' }}
+													required
+												/>
+											</React.Fragment>
+										)}
+									/>
+								</LocalizationProvider>
+							</Grid>
+							<Grid
+								item
+								xs={12}
+								md={2}
+								sx={{ marginTop: { xs: '1rem', md: '0' } }}
+							>
+								<Button
+									className="search-button"
+									type="submit"
+									variant="contained"
+									color="primary"
+									sx={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+										color: 'rgba(252, 247, 238, 0.85)',
+										fontWeight: 700,
+										padding: '10px 20px',
+										width: '100%',
+									}}
+								>
+									<SvgIcon
+										className="tent-icon"
+										sx={{
+											width: '50px',
+											height: '50px',
+											fill: 'rgba(252, 247, 238, 0.85)',
+										}}
+										viewBox="0 0 79 75"
+									>
+										<TentIconPath />
+									</SvgIcon>
+									Zearch
+								</Button>
+							</Grid>
+						</Grid>
+					</Box>
+				</Box>
 
-					{availableEntities.length && openAvailabilities ? (
-						<Box className="search-results" p={2}>
-							<List>
-								<Grid container>
-									<Grid item xs={6}>
-										<h3 style={{ margin: 0 }}>
-											{entityType === 'campground' ? 'Campsites' : 'Permits'}{' '}
-											Available!{' '}
-										</h3>
-										<p style={{ margin: 0 }}>
-											Reserve on{' '}
-											<Link
-												target="_blank"
-												rel="noreferrer"
-												href={
-													entityType === 'campground'
-														? `https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`
-														: `https://www.recreation.gov/permits/${
-																campgroundValue.entityId
-														  }/registration/detailed-availability?date=${moment(
-																checkInOutDates[0]
-														  ).format('YYYY-MM-DD')}`
-												}
-											>
-												Recreation.Gov
-											</Link>
-										</p>
-										<List>
-											{availableEntities
-												.sort(
-													(a, b) =>
-														moment(a.date).valueOf() - moment(b.date).valueOf()
-												)
-												.map((entity, index) => {
-													return (
-														<ListItem disablePadding key={index}>
-															<ListItemText>
-																{isEntityPermit(entity) && entity.remaining ? (
-																	<>
-																		{entity.remaining}{' '}
-																		{entity.remaining > 1
-																			? 'permits available'
-																			: 'permit available'}{' '}
-																		for:{' '}
+				{availableEntities.length && openAvailabilities ? (
+					<Box className="search-results" p={3}>
+						<List>
+							<Grid container>
+								<Grid
+									item
+									xs={12}
+									md={availabilitiesForEveryDate() ? 12 : 8}
+									sx={{ marginRight: '-8px' }}
+								>
+									<Typography
+										component="h3"
+										color="primary"
+										sx={{
+											fontSize: '18px',
+											fontWeight: 600,
+											letterSpacing: '0.1rem',
+										}}
+									>
+										{entityType === 'campground' ? 'Campsites' : 'Permits'}{' '}
+										Available!{' '}
+									</Typography>
+									<Typography
+										sx={{
+											fontSize: '18px',
+											fontWeight: 300,
+											letterSpacing: '0.1rem',
+										}}
+									>
+										Reserve on{' '}
+										<Link
+											target="_blank"
+											rel="noreferrer"
+											href={
+												entityType === 'campground'
+													? `https://www.recreation.gov/camping/campgrounds/${campgroundValue.entityId}`
+													: `https://www.recreation.gov/permits/${
+															campgroundValue.entityId
+													  }/registration/detailed-availability?date=${moment(
+															checkInOutDates[0]
+													  ).format('YYYY-MM-DD')}`
+											}
+										>
+											Recreation.Gov
+										</Link>
+									</Typography>
+									<List>
+										{availableEntities
+											.sort(
+												(a, b) =>
+													moment(a.date).valueOf() - moment(b.date).valueOf()
+											)
+											.map((entity, index) => {
+												return (
+													<ListItem disablePadding key={index}>
+														<ListItemText>
+															{isEntityPermit(entity) && entity.remaining ? (
+																<>
+																	{entity.remaining}{' '}
+																	{entity.remaining > 1
+																		? 'permits available'
+																		: 'permit available'}{' '}
+																	for:{' '}
+																	{moment(entity.date).format('MM-DD-YYYY')}
+																</>
+															) : null}
+															{isEntityCampground(entity) && entity.sites ? (
+																<Box sx={{ display: 'inline-flex' }}>
+																	<Typography
+																		sx={{
+																			fontSize: '18px',
+																			fontWeight: 300,
+																			letterSpacing: '0.1rem',
+																			marginRight: '2rem',
+																		}}
+																	>
 																		{moment(entity.date).format('MM-DD-YYYY')}
-																	</>
-																) : null}
-																{isEntityCampground(entity) && entity.sites ? (
-																	<>
+																	</Typography>
+																	<Typography
+																		color="primary"
+																		sx={{
+																			fontSize: '18px',
+																			fontWeight: 600,
+																			letterSpacing: '0.1rem',
+																		}}
+																	>
 																		{entity.sites.length}{' '}
 																		{entity.sites.length > 1
 																			? 'sites available'
 																			: 'site available'}{' '}
-																		for:{' '}
-																		{moment(entity.date).format('MM-DD-YYYY')}
-																	</>
-																) : null}
-															</ListItemText>
-														</ListItem>
-													);
-												})}
-										</List>
-									</Grid>
-									{/* if there arent availabilities for every date, create an alert */}
-									{!availabilitiesForEveryDate() ? (
-										<Grid item xs={6}>
-											<Box mb="1rem">
+																	</Typography>
+																</Box>
+															) : null}
+														</ListItemText>
+													</ListItem>
+												);
+											})}
+									</List>
+								</Grid>
+
+								{/* if there arent availabilities for every date, create an alert */}
+								{!availabilitiesForEveryDate() ? (
+									<Grid
+										item
+										xs={12}
+										md={4}
+										sx={{
+											borderLeft: { xs: 'none', md: '1px solid' },
+											borderColor: 'primary.main',
+										}}
+									>
+										<Box mb="1rem" sx={{ pl: { xs: '0', md: '1rem' } }}>
+											<Typography
+												color={'primary'}
+												sx={{
+													fontSize: '18px',
+													fontWeight: 400,
+													letterSpacing: '0.05rem',
+												}}
+											>
 												There aren't availabilites for all of the dates you
-												selected. Create an alert to be notified when they
-												become available.
-											</Box>
+												selected.{' '}
+												<span
+													style={{
+														fontWeight: 700,
+													}}
+												>
+													Create an alert to be notified when they become
+													available.
+												</span>
+											</Typography>
+										</Box>
+										{user ? (
 											<Button
 												className="create-alert-button"
 												variant="contained"
-												startIcon={<AddAlertIcon />}
+												startIcon={<NotificationAddIcon />}
 												onClick={() => setAddAlertModalOpen(true)}
+												sx={{ marginLeft: { xs: 0, md: '1rem' } }}
 											>
 												Create an alert
 											</Button>
-											<CreateAlertModal
-												open={addAlertModalOpen}
-												handleClose={() => {
-													setAddAlertModalOpen(false);
+										) : (
+											<Button
+												onClick={() => signIn()}
+												variant="contained"
+												sx={{
+													color: 'rgba(252, 247, 238, 0.85)',
+													marginRight: '1rem',
+													marginLeft: { xs: 0, md: '1rem' },
+													textTransform: 'uppercase',
+													fontWeight: 600,
+													fontSize: '14px',
+													letterSpacing: '.1em',
+													padding: '1rem',
 												}}
-												campgroundValue={campgroundValue}
-												checkInOutDates={checkInOutDates}
-											/>
-										</Grid>
-									) : null}
-								</Grid>
-							</List>
-						</Box>
-					) : !availableEntities.length && openAvailabilities ? (
-						<Box
-							className="search-results empty-results"
-							p={2}
-							style={{ display: 'flex', alignItems: 'center' }}
-						>
-							<Typography>
-								Currently no available campsites/permits for the selected dates.{' '}
-								<br /> Create an alert to be notified of an opening.
-							</Typography>
+											>
+												Login to create an alert
+											</Button>
+										)}
 
-							{user ? (
-								<>
-									<Button
-										className="create-alert-button"
-										variant="contained"
-										startIcon={<AddAlertIcon />}
-										onClick={() => setAddAlertModalOpen(true)}
-									>
-										Create an alert
-									</Button>
-									<CreateAlertModal
-										open={addAlertModalOpen}
-										handleClose={() => {
-											setAddAlertModalOpen(false);
-										}}
-										campgroundValue={campgroundValue}
-										checkInOutDates={checkInOutDates}
-									/>
-								</>
-							) : (
-								<Login
-									className="login-button"
-									loginText="Login to create an alert"
+										<CreateAlertModal
+											open={addAlertModalOpen}
+											handleClose={() => {
+												setAddAlertModalOpen(false);
+											}}
+											campgroundValue={campgroundValue}
+											checkInOutDates={checkInOutDates}
+										/>
+									</Grid>
+								) : null}
+							</Grid>
+						</List>
+					</Box>
+				) : !availableEntities.length && openAvailabilities ? (
+					<Box
+						className="search-results"
+						p={3}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<Typography color={'primary.main'} sx={{ letterSpacing: '.05rem' }}>
+							There are currently no available campsites/permits for your
+							selected dates.
+						</Typography>
+
+						<Typography
+							color={'primary.main'}
+							sx={{ letterSpacing: '.05rem', fontWeight: 600 }}
+						>
+							To be notified of an opening please create an alert.
+						</Typography>
+
+						{user ? (
+							<>
+								<Button
+									variant="contained"
+									startIcon={<NotificationAddIcon />}
+									onClick={() => setAddAlertModalOpen(true)}
+									sx={{
+										padding: '15px',
+										borderRadius: '15px',
+										marginTop: '16px',
+										fontWeight: 600,
+										fontSize: '14px',
+									}}
+								>
+									Create an alert
+								</Button>
+								<CreateAlertModal
+									open={addAlertModalOpen}
+									handleClose={() => {
+										setAddAlertModalOpen(false);
+									}}
+									campgroundValue={campgroundValue}
+									checkInOutDates={checkInOutDates}
 								/>
-							)}
-						</Box>
-					) : null}
-				</Box>
-			</div>
+							</>
+						) : (
+							<Button
+								onClick={() => signIn()}
+								variant="contained"
+								sx={{
+									color: 'rgba(252, 247, 238, 0.85)',
+									marginRight: '1rem',
+									marginLeft: { xs: 0, md: '1rem' },
+									marginTop: '16px',
+									textTransform: 'uppercase',
+									fontWeight: 600,
+									fontSize: '14px',
+									letterSpacing: '0.1rem',
+									padding: '1rem',
+								}}
+							>
+								Login to create an alert
+							</Button>
+						)}
+					</Box>
+				) : null}
+			</Box>
 		</div>
 	);
 };

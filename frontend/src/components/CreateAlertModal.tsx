@@ -5,26 +5,17 @@ import axios, { AxiosError } from 'axios';
 import moment from 'moment';
 
 import { Box } from '@mui/system';
-import {
-	Button,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle,
-	TextField,
-} from '@mui/material';
+import { Button, SvgIcon, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
-
-import DatePicker from '@mui/lab/DatePicker';
-
-import AdapterDateFns from '@mui/lab/AdapterMoment';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 import Link from '@mui/material/Link';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
 import { DateRange } from '@mui/lab/DateRangePicker';
+
+import NotificationAddIcon from '@mui/icons-material/NotificationAdd';
+import { TentIconPath } from './SVGIconPaths';
 
 export type campgroundValue = {
 	displayName: string;
@@ -65,7 +56,7 @@ const CreateAlertModal = ({
 				setSnackOpen(true);
 			} else {
 				try {
-					const response = await axios.post(
+					await axios.post(
 						'/api/alert',
 						{
 							entity: {
@@ -110,84 +101,117 @@ const CreateAlertModal = ({
 	};
 
 	return (
-		<Dialog open={open} onClose={handleClose}>
+		<Dialog
+			open={open}
+			onClose={handleClose}
+			PaperProps={{
+				style: { borderRadius: '15px' },
+			}}
+			maxWidth={'xs'}
+			fullWidth={true}
+			sx={{ padding: '2rem' }}
+		>
 			<Box
-				px={0}
-				py={0}
-				component="form"
-				className=""
 				sx={{
-					'& > :not(style)': { m: 1 },
-				}}
-				autoComplete="off"
-			>
-				<DialogTitle>Create Alert</DialogTitle>
+					display: 'flex',
 
-				<DialogContent>
-					<DialogContentText>
-						You will be alerted by email for this campground at the frequency
-						according to your preferences. Modify them{' '}
-						<Link component={RouterLink} to="/alerts">
-							here
-						</Link>
-						.
-					</DialogContentText>
-					<TextField
-						required
-						id="filled-basic"
-						variant="filled"
-						placeholder="Campground Name"
-						label="Campground"
-						disabled
-						size="small"
-						margin="dense"
-						value={campgroundValue.displayName}
-						inputProps={{ style: { textTransform: 'capitalize' } }}
-						InputLabelProps={{
-							shrink: true,
+					padding: '2rem',
+					alignItems: 'center',
+					justifyContent: 'center',
+					backgroundColor: 'rgba(117, 125, 103, 0.2)',
+				}}
+			>
+				<Box sx={{ marginRight: '1rem' }}>
+					<SvgIcon
+						sx={{ width: '50px', height: '50px' }}
+						color="primary"
+						viewBox="0 0 79 75"
+					>
+						<TentIconPath />
+					</SvgIcon>
+				</Box>
+
+				<Box>
+					<Typography
+						color={'primary'}
+						sx={{
+							textTransform: 'uppercase',
+							fontWeight: 300,
+							fontSize: '18px',
+							letterSpacing: '.1rem',
 						}}
-						fullWidth
-					/>
-					<LocalizationProvider dateAdapter={AdapterDateFns}>
-						<DatePicker
-							label="Checkin"
-							value={checkInOutDates[0]}
-							onChange={(newValue) => {}}
-							disabled
-							renderInput={(params) => (
-								<TextField
-									sx={{ mr: 2 }}
-									size="small"
-									margin="dense"
-									variant="filled"
-									{...params}
-								/>
-							)}
-						/>
-					</LocalizationProvider>
-					<LocalizationProvider dateAdapter={AdapterDateFns}>
-						<DatePicker
-							label="Checkout"
-							value={checkInOutDates[1]}
-							onChange={(newValue) => {}}
-							disabled
-							renderInput={(params) => (
-								<TextField
-									size="small"
-									margin="dense"
-									variant="filled"
-									{...params}
-								/>
-							)}
-						/>
-					</LocalizationProvider>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button variant="contained" onClick={onSubmitHandler}>
-						Create
-					</Button>
-				</DialogActions>
+					>
+						Creating an alert for:
+					</Typography>
+					<Typography
+						color={'primary'}
+						sx={{
+							fontWeight: 700,
+							fontSize: '18px',
+							letterSpacing: '.1rem',
+							textTransform: 'capitalize',
+						}}
+					>
+						{campgroundValue.displayName}
+					</Typography>
+					<Typography
+						color={'primary'}
+						sx={{
+							fontWeight: 700,
+							fontSize: '18px',
+							letterSpacing: '.1rem',
+						}}
+					>
+						{checkInOutDates[0]?.format('MM/DD/YYYY')} -{' '}
+						{checkInOutDates[1]?.format('MM/DD/YYYY')}
+					</Typography>
+				</Box>
+			</Box>
+			<Box
+				sx={{
+					backgroundColor: '#FCF7EE',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					flexDirection: 'column',
+					padding: '2rem',
+				}}
+			>
+				<Button
+					variant="contained"
+					startIcon={<NotificationAddIcon />}
+					onClick={onSubmitHandler}
+					sx={{
+						padding: '15px',
+						borderRadius: '15px',
+						fontWeight: 600,
+						fontSize: '14px',
+					}}
+				>
+					Create an alert
+				</Button>
+				<Typography
+					color={'primary'}
+					textAlign={'center'}
+					sx={{
+						paddingTop: '2rem',
+
+						fontWeight: 300,
+						fontSize: '16px',
+						letterSpacing: '.05rem',
+					}}
+				>
+					You will be alerted of availablities by email. Frequency of
+					notifications can be modified in{' '}
+					<Link
+						sx={{ fontWeight: 600, textDecoration: 'none' }}
+						component={RouterLink}
+						to="/alerts"
+					>
+						your alert
+					</Link>{' '}
+					preferences.
+				</Typography>
 			</Box>
 		</Dialog>
 	);

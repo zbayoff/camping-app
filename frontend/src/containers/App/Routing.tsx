@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import PrivateRoute from '../../components/PrivateRoute';
 import Alerts from '../../components/Alerts';
@@ -10,17 +9,8 @@ const Routing = () => {
 	return (
 		<Switch>
 			<Route exact path="/" component={Home} />
-
 			<PrivateRoute exact path="/alerts" component={Alerts} />
-			<Route
-				exact
-				path="/login"
-				render={(routeProps) => (
-					<div className="LoginWrapper">
-						<Login />
-					</div>
-				)}
-			/>
+			<Route exact path="/login" component={Login} />
 		</Switch>
 	);
 };

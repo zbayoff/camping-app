@@ -45,20 +45,10 @@ async function addAlert(req: any, res: any) {
 		userId: ObjectId(userId),
 	});
 
-	const existingAlert = await Alert.countDocuments({
-		'entity.id': entity.id,
-		userId: ObjectId(userId),
-	});
-
 	if (numExistingAlerts > 7) {
 		res.status(500).send({
 			status: 500,
 			message: 'You may only create 8 alerts max.',
-		});
-	} else if (existingAlert > 0) {
-		res.status(500).send({
-			status: 500,
-			message: 'You already have an alert for this entity.',
 		});
 	} else {
 		const alert = new Alert({

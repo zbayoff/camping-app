@@ -1,5 +1,5 @@
 import Alert from '../models/Alert';
-import User from '../models/User';
+import User, { UserSchema } from '../models/User';
 
 import express, { Request, Response } from 'express';
 
@@ -31,8 +31,21 @@ router.get('/user', checkAuth, (req: Request, res) => {
 router.get('/users', getUsers);
 router.post('/user', addUser);
 router.put('/user', checkAuth, async (req: Request, res) => {
-	const { user } = req.body;
+	const { user }: { user: UserSchema } = req.body;
+
 	try {
+		// validate the notification frequency number is an integer greater than 0
+		if (
+			user.notificationSettings.frequencyNumber <= 0 ||
+			!Number.isInteger(user.notificationSettings.frequencyNumber)
+		) {
+			throw {
+				status: 500,
+				message:
+					'Frequency provided is not valid. Please choose a non-decimal number greater than 0.',
+			};
+		}
+
 		const updatedUser = await User.findByIdAndUpdate(
 			{ _id: req.userId },
 			user,
@@ -115,7 +128,6 @@ router.post('/availablePermits', async (req, res) => {
 			});
 		}
 
-		
 		// next(err);
 	}
 });

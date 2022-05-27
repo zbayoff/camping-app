@@ -1,62 +1,31 @@
-body {
-	margin: 0;
-	padding: 0;
+.bg-image {
+	background-size: cover;
+	background-image: url('./images/camping-background.jpg');
+	background-position: center center;
+	min-height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -1;
 }
 
 .Home {
-	height: 100vh;
-	background-size: cover;
-	background-image: url('./images/yosemite-bg-image-min.jpg');
-
-	.header-wrapper {
-		transform: translateY(60px);
-		margin: 0 auto;
-
-		@media (min-width: 768px) {
-			transform: translateY(150px);
-		}
-	}
 
 	.form-wrapper {
 		transform: translateY(100px);
-		max-width: 700px;
+		max-width: 1000px;
 		margin: 0 auto;
 
-		@media (min-width: 768px) {
-			transform: translateY(200px);
-		}
-
-		.divider {
-			display: none;
-			@media (min-width: 768px) {
-				display: block;
-			}
-		}
 		.search-form-container {
 			display: flex;
 			flex-direction: column;
-			padding: 0px 15px;
-			border-radius: 15px;
-
-			background-color: white;
 
 			.campground-text-input {
-				margin: 20px 8px 8px 8px;
-				min-width: 200px;
+				min-width: 350px;
 
 				@media (min-width: 768px) {
 					margin: 10px 0 0 0;
-				}
-			}
-
-			.date-range-container {
-				margin: 0;
-			}
-
-			.search-button {
-				margin-bottom: 20px;
-				@media (min-width: 768px) {
-					margin-bottom: 8px;
 				}
 			}
 
@@ -67,16 +36,14 @@ body {
 			}
 		}
 		.suggestions-wrapper {
-			background-color: white;
-			margin-top: 15px;
-			border-radius: 15px;
-			z-index: 1;
-			position: absolute;
-			width: 100%;
-			box-shadow: 0px 6px 20px rgb(0 0 0 / 20%);
-
 			max-height: 300px;
 			overflow-y: scroll;
+			border-bottom-left-radius: 15px;
+			border-bottom-right-radius: 15px;
+			ul {
+				background-color: #fcf7ee;
+				padding: 0;
+			}
 
 			@media (min-width: 768px) {
 				max-height: 300px;
@@ -91,58 +58,32 @@ body {
 	}
 
 	.search-results {
-		background-color: white;
+		background-color: rgba(252, 247, 238, 0.85);
 		margin-top: 15px;
 		border-radius: 15px;
 		overflow-y: scroll;
 		max-height: 400px;
 	}
+}
 
-	.empty-results {
-		flex-direction: column;
-		align-items: center;
-
-		.create-alert-button,
-		.login-button {
-			margin-left: 0;
-			margin-top: 20px;
-			@media (min-width: 768px) {
-				margin-top: 0;
-				margin-left: auto;
-			}
-		}
-
-		@media (min-width: 768px) {
-			flex-direction: row;
-			align-items: center;
-		}
+.Alerts {
+	.bg-image {
+		background-image: url('./images/alerts-background.jpg');
 	}
 }
 
 header.Navbar {
+	background-color: transparent;
+	box-shadow: none;
 
-	background-color: white;
-
-	&.home:not(.scrolled)  {
-		background-color: transparent;
-		box-shadow: none;
+	.active {
+		font-weight: 900;
 	}
-
-
 
 	.avatar {
 		border-radius: 50%;
 		width: 30px;
 	}
-}
-
-.LoginWrapper {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: calc(100vh - 65px);
-	margin-top: 65px;
 }
 
 .PrivatePage {

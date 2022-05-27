@@ -4,19 +4,13 @@ import axios, { AxiosError } from 'axios';
 
 import Box from '@mui/material/Box';
 
-import {
-	Button,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-} from '@mui/material';
+import { Button, DialogActions, Typography } from '@mui/material';
 
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import Dialog from '@mui/material/Dialog';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 
@@ -65,7 +59,7 @@ const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 		const newObj = { ...alert, enabled: enabledValue };
 
 		try {
-			const response = await axios.put(
+			await axios.put(
 				`/api/alert/${alert._id}`,
 				{
 					alert: newObj,
@@ -104,24 +98,64 @@ const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 	};
 
 	return (
-		<Dialog open={open} onClose={handleClose}>
-			<Box
-				px={0}
-				py={0}
-				component="form"
-				className=""
-				sx={{
-					'& > :not(style)': { m: 1 },
-				}}
-				autoComplete="off"
-			>
-				<DialogTitle>
-					Edit Alert for {alert ? alert.entity.name : null}
-				</DialogTitle>
+		<Dialog
+			PaperProps={{
+				style: { borderRadius: '15px' },
+			}}
+			maxWidth={'xs'}
+			fullWidth={true}
+			open={open}
+			onClose={handleClose}
+		>
+			<Box p={0} component="form" autoComplete="off">
+				<Box
+					sx={{
+						display: 'flex',
 
-				<DialogContent>
-					<FormControl component="fieldset">
-						<FormLabel component="legend">Enabled?</FormLabel>
+						padding: '2rem',
+						alignItems: 'center',
+						justifyContent: 'center',
+						backgroundColor: 'rgba(117, 125, 103, 0.2)',
+					}}
+				>
+					<Box sx={{ marginRight: '1rem' }}>
+						<EditIcon sx={{ color: 'primary.main' }} />
+					</Box>
+
+					<Box>
+						<Typography
+							color={'primary.main'}
+							sx={{
+								textTransform: 'uppercase',
+								fontWeight: 300,
+								fontSize: '18px',
+								letterSpacing: '.1rem',
+							}}
+						>
+							edit alert for
+						</Typography>
+						<Typography
+							color={'primary.main'}
+							sx={{
+								fontWeight: 700,
+								fontSize: '18px',
+								letterSpacing: '.1rem',
+							}}
+						>
+							{alert ? alert.entity.name : null}
+						</Typography>
+					</Box>
+				</Box>
+
+				<Box
+					sx={{
+						padding: '2rem',
+						display: 'flex',
+						justifyContent: 'center',
+						backgroundColor: '#FCF7EE',
+					}}
+				>
+					<Box>
 						<RadioGroup
 							aria-label="gender"
 							name="controlled-radio-buttons-group"
@@ -129,21 +163,48 @@ const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 							onChange={handleChange}
 						>
 							<FormControlLabel
+								sx={{
+									color: 'secondary.main',
+									'&.MuiFormControlLabel-root .Mui-checked': {
+										color: 'secondary.main',
+									},
+								}}
 								value={'true'}
 								control={<Radio />}
-								label="True"
+								label={
+									<Typography sx={{ fontWeight: 700, letterSpacing: '0.1rem' }}>
+										Activate
+									</Typography>
+								}
 							/>
 							<FormControlLabel
+								sx={{
+									color: '#7B3620',
+									'&.MuiFormControlLabel-root .Mui-checked': {
+										color: '#7B3620',
+									},
+								}}
 								value={'false'}
 								control={<Radio />}
-								label="False"
+								label={
+									<Typography sx={{ fontWeight: 700, letterSpacing: '0.1rem' }}>
+										Disable
+									</Typography>
+								}
 							/>
 						</RadioGroup>
-					</FormControl>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose}>Cancel</Button>
-					<Button variant="contained" onClick={onSubmitHandler}>
+					</Box>
+				</Box>
+
+				<DialogActions sx={{ padding: '2rem', backgroundColor: '#FCF7EE' }}>
+					<Button sx={{ fontWeight: '700' }} onClick={handleClose}>
+						Cancel
+					</Button>
+					<Button
+						sx={{ fontWeight: '700' }}
+						variant="contained"
+						onClick={onSubmitHandler}
+					>
 						Save
 					</Button>
 				</DialogActions>

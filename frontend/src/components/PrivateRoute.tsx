@@ -6,9 +6,9 @@ import { validateToken } from '../utils/auth';
 import { Container, Grid } from '@mui/material';
 
 interface PrivateRouteProps {
-    path: string;
-    exact?: boolean;
-    component: React.ComponentType<any>;
+	path: string;
+	exact?: boolean;
+	component: React.ComponentType<any>;
 }
 
 export const PrivateRoute = ({ component, path, exact }: PrivateRouteProps) => {
@@ -30,9 +30,9 @@ export const PrivateRoute = ({ component, path, exact }: PrivateRouteProps) => {
 };
 
 interface PrivatePageProps {
-    path: string;
-    Component: React.ComponentType<any>;
-    componentProps: any;
+	path: string;
+	Component: React.ComponentType<any>;
+	componentProps: any;
 }
 
 const PrivatePage = ({ Component, componentProps }: PrivatePageProps) => {

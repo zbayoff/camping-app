@@ -3,9 +3,9 @@ const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-import User from '../models/User';
+import User, { UserSchema } from '../models/User';
 
-const signJwtToken = (user: any, res: any) => {
+const signJwtToken = (user: UserSchema, res: any) => {
 	const jwtToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
 		expiresIn: '7 days',
 	});

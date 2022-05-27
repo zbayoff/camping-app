@@ -1,9 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import Login from './Login';
 import Logout from './Logout';
-import { Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -16,30 +15,26 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Tooltip from '@mui/material/Tooltip';
+import { SxProps } from '@mui/system';
+import useLogin from '../hooks/useLogin';
+import { GoogleIconPath } from './SVGIconPaths';
 
 const Navigation = () => {
 	const { user } = useContext(AuthContext);
 	const { pathname } = useLocation();
 
+	const { signIn } = useLogin();
+
 	const [anchorElNav, setAnchorElNav] = useState<Element | null>(null);
-	const [anchorElUser, setAnchorElUser] = useState<Element | null>(null);
 
 	const [scroll, setScroll] = useState(false);
 
 	const handleOpenNavMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorElNav(event.currentTarget);
 	};
-	const handleOpenUserMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setAnchorElUser(event.currentTarget);
-	};
 
 	const handleCloseNavMenu = () => {
 		setAnchorElNav(null);
-	};
-
-	const handleCloseUserMenu = () => {
-		setAnchorElUser(null);
 	};
 
 	useEffect(() => {
@@ -48,18 +43,26 @@ const Navigation = () => {
 		});
 	}, [scroll]);
 
+	const mobileNavItemStyle: SxProps = {
+		textTransform: 'uppercase',
+		fontWeight: 600,
+		fontSize: '14px',
+		letterSpacing: '0.1rem',
+		color: 'primary.main',
+	};
+
 	return (
 		<AppBar
 			className={`Navbar ${scroll ? 'scrolled' : ''} ${
 				pathname === '/' ? 'home' : ''
 			}`}
-			position="fixed"
+			position="static"
 		>
 			<Container maxWidth="xl">
 				<Toolbar disableGutters>
-					<Link to="/">
+					<Link to="/" style={{ display: 'flex' }}>
 						<SvgIcon
-							color="primary"
+							htmlColor="white"
 							viewBox={'0 0 224 144'}
 							style={{ width: '60px' }}
 						>
@@ -70,6 +73,7 @@ const Navigation = () => {
 						</SvgIcon>
 					</Link>
 
+					{/* Mobile nav */}
 					<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
 						{user ? (
 							<>
@@ -81,7 +85,7 @@ const Navigation = () => {
 									onClick={handleOpenNavMenu}
 									color="primary"
 								>
-									<MenuIcon />
+									<MenuIcon sx={{ color: 'rgba(252, 247, 238, 0.85)' }} />
 								</IconButton>
 								<Menu
 									id="menu-appbar"
@@ -99,19 +103,46 @@ const Navigation = () => {
 									onClose={handleCloseNavMenu}
 									sx={{
 										display: { xs: 'block', md: 'none' },
+										borderRadius: '15px',
+									}}
+									PaperProps={{
+										style: { borderRadius: '15px' },
 									}}
 								>
 									<MenuItem
 										onClick={handleCloseNavMenu}
-										component={Link}
-										to="/alerts"
+										component={NavLink}
+										to="/"
+										activeClassName="active-nav"
 									>
-										<Typography textAlign="center">Alerts</Typography>
+										<Typography sx={mobileNavItemStyle} textAlign="center">
+											Search
+										</Typography>
+									</MenuItem>
+									<MenuItem
+										onClick={handleCloseNavMenu}
+										component={NavLink}
+										to="/alerts"
+										activeClassName="active-nav"
+									>
+										<Typography sx={mobileNavItemStyle} textAlign="center">
+											Alerts
+										</Typography>
+									</MenuItem>
+									<MenuItem
+										onClick={handleCloseNavMenu}
+										component={NavLink}
+										to="/"
+										activeClassName="active-nav"
+									>
+										{user ? <Logout sx={mobileNavItemStyle} /> : null}
 									</MenuItem>
 								</Menu>
 							</>
 						) : null}
 					</Box>
+
+					{/* Desktop Nav */}
 					<Box
 						sx={{
 							flexGrow: 1,
@@ -120,49 +151,110 @@ const Navigation = () => {
 						}}
 					>
 						{user ? (
-							<Button
-								to="/alerts"
-								component={Link}
-								onClick={handleCloseNavMenu}
-								sx={{ mr: 2 }}
-							>
-								Alerts
-							</Button>
+							<>
+								<Button
+									to="/"
+									exact
+									component={NavLink}
+									onClick={handleCloseNavMenu}
+									sx={{
+										mr: 2,
+										color: pathname === '/' ? 'white' : 'primary.main',
+										fontWeight: 500,
+										fontSize: '18px',
+									}}
+								>
+									Search
+								</Button>
+								<Box
+									sx={{
+										alignSelf: 'center',
+										borderRight: `2px solid`,
+										borderColor: pathname === '/' ? 'white' : 'primary.main',
+										flex: '0 0 0px !important',
+										height: '31px',
+										marginRight: '1rem',
+									}}
+								></Box>
+								<Button
+									to="/alerts"
+									component={NavLink}
+									onClick={handleCloseNavMenu}
+									sx={{
+										mr: 2,
+										color: pathname === '/' ? 'white' : 'primary.main',
+										fontWeight: 500,
+										fontSize: '18px',
+									}}
+								>
+									Alerts
+								</Button>
+								<Box
+									sx={{
+										alignSelf: 'center',
+										borderRight: `2px solid`,
+										borderColor: pathname === '/' ? 'white' : 'primary.main',
+										flex: '0 0 0px !important',
+										height: '31px',
+										marginRight: '1rem',
+									}}
+								></Box>
+								<Logout
+									sx={{
+										mr: 2,
+										textTransform: 'uppercase',
+										color: pathname === '/' ? 'white' : 'primary.main',
+										fontWeight: 500,
+										fontSize: '18px',
+										letterSpacing: '0.1rem',
+									}}
+								/>
+							</>
 						) : null}
 					</Box>
-
-					{/* Avatar */}
 					<Box sx={{ flexGrow: 0 }}>
 						{user ? (
 							<div>
-								<Tooltip title="Open settings">
-									<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-										<Avatar alt={user.firstName} src={user.picture} />
-									</IconButton>
-								</Tooltip>
-								<Menu
-									sx={{ mt: '45px' }}
-									id="menu-appbar"
-									anchorEl={anchorElUser}
-									anchorOrigin={{
-										vertical: 'top',
-										horizontal: 'right',
-									}}
-									keepMounted
-									transformOrigin={{
-										vertical: 'top',
-										horizontal: 'right',
-									}}
-									open={Boolean(anchorElUser)}
-									onClose={handleCloseUserMenu}
-								>
-									<MenuItem onClick={handleCloseUserMenu}>
-										<Logout />
-									</MenuItem>
-								</Menu>
+								<Avatar alt={user.firstName} src={user.picture} />
 							</div>
 						) : (
-							<Login />
+							<Button onClick={() => signIn()}>
+								<Typography
+									sx={{
+										fontWeight: 600,
+										textTransform: 'uppercase',
+										fontSize: '18px',
+										letterSpacing: '0.1rem',
+										color: 'white',
+										marginRight: '1rem',
+									}}
+								>
+									Sign In
+								</Typography>
+								<Box
+									sx={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<SvgIcon
+										sx={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											width: '47px',
+											height: '47px',
+											backgroundColor: 'white',
+											borderRadius: '50%',
+											padding: '8px',
+										}}
+										viewBox="0 0 18 18"
+									>
+										<GoogleIconPath />
+									</SvgIcon>
+								</Box>
+							</Button>
 						)}
 					</Box>
 				</Toolbar>

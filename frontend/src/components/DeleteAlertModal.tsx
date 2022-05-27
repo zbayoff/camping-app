@@ -4,14 +4,9 @@ import axios, { AxiosError } from 'axios';
 
 import Box from '@mui/material/Box';
 
-import {
-	Button,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle,
-} from '@mui/material';
+import { Button, DialogActions, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { SnackbarContext } from '../contexts/snackbarContext';
 import { Alert } from './EditAlertModal';
@@ -41,7 +36,7 @@ const DeleteAlertModal = ({
 		event.preventDefault();
 
 		try {
-			const response = await axios.delete(`/api/alert/${alert._id}`, {
+			await axios.delete(`/api/alert/${alert._id}`, {
 				withCredentials: true,
 			});
 			setSeverity('success');
@@ -73,27 +68,61 @@ const DeleteAlertModal = ({
 	};
 
 	return (
-		<Dialog open={open} onClose={handleClose}>
-			<Box
-				px={0}
-				py={0}
-				component="form"
-				className=""
-				sx={{
-					'& > :not(style)': { m: 1 },
-				}}
-				autoComplete="off"
-			>
-				<DialogTitle>Delete Alert</DialogTitle>
+		<Dialog
+			PaperProps={{
+				style: { borderRadius: '15px' },
+			}}
+			maxWidth={'xs'}
+			fullWidth={true}
+			open={open}
+			onClose={handleClose}
+		>
+			<Box p={0} component="form" autoComplete="off">
+				<Box
+					sx={{
+						display: 'flex',
 
-				<DialogContent>
-					<DialogContentText>
-						Delete alert for campground: {alert ? alert.entity.name : null}
-					</DialogContentText>
-				</DialogContent>
-				<DialogActions>
+						padding: '2rem',
+						alignItems: 'center',
+						justifyContent: 'center',
+						backgroundColor: 'rgba(117, 125, 103, 0.2)',
+					}}
+				>
+					<Box sx={{ marginRight: '1rem' }}>
+						<DeleteIcon sx={{ color: 'primary.main' }} />
+					</Box>
+
+					<Box>
+						<Typography
+							color={'primary.main'}
+							sx={{
+								textTransform: 'uppercase',
+								fontWeight: 300,
+								fontSize: '18px',
+								letterSpacing: '.1rem',
+							}}
+						>
+							delete alert for
+						</Typography>
+						<Typography
+							color={'primary.main'}
+							sx={{
+								fontWeight: 700,
+								fontSize: '18px',
+								letterSpacing: '.1rem',
+							}}
+						>
+							{alert ? alert.entity.name : null}
+						</Typography>
+					</Box>
+				</Box>
+				<DialogActions sx={{ padding: '2rem', backgroundColor: '#FCF7EE' }}>
 					<Button onClick={handleClose}>Cancel</Button>
-					<Button color="error" variant="contained" onClick={onSubmitHandler}>
+					<Button
+						sx={{ bgcolor: '#7B3620', color: 'white' }}
+						variant="contained"
+						onClick={onSubmitHandler}
+					>
 						Delete
 					</Button>
 				</DialogActions>
