@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -9,6 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Box } from '@mui/system';
 import NotificationAddIcon from '@mui/icons-material/NotificationAdd';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -22,10 +23,10 @@ import { SxProps } from '@material-ui/system';
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/authContext';
 import EditUserSettings from './EditUserSettings';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { SnackbarContext } from '../contexts/snackbarContext';
 
 const Alerts = () => {
-	const [rows, setRows] = useState([]);
-
 	const { user } = useContext(AuthContext);
 
 	const [editModalOpen, setEditModalOpen] = useState(false);
@@ -38,31 +39,60 @@ const Alerts = () => {
 	const handleDeleteModalClose = () => setDeleteModalOpen(false);
 	const handleEditUserSettingsClose = () => setEditUserSettingsOpen(false);
 
-	// need to re-render component when handleDeleteModalClose is fired
-	useEffect(() => {
-		const fetchUserAlerts = async () => {
-			// TODO: check for alerts with Checkout Date past current Date. If so, 'archive' them somehow.
-			try {
-				const response = await axios.get('/api/user/alerts', {
-					withCredentials: true,
-				});
-				if (response.data) {
-					setRows(response.data);
-				} else {
-					setRows([]);
-				}
-			} catch (err) {
-				console.error('error  fetching alerts response', err);
+	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
+
+	const queryClient = useQueryClient();
+
+	const deleteMutation = useMutation(
+		(id: string) =>
+			axios.delete(`/api/alert/${id}`, {
+				withCredentials: true,
+			}),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries();
+
+				setDeleteModalOpen(false);
+				setSeverity('success');
+				setMessage('Success! Your alert has been deleted.');
+				setSnackOpen(true);
+			},
+			onError: (err) => {
+				console.error('err deleting alert: ', err);
 				if (axios.isAxiosError(err)) {
 					const axiosError = err as AxiosError;
 
 					console.error('Axios error: ', axiosError.response);
-				}
-			}
-		};
 
-		fetchUserAlerts();
-	}, [deleteModalOpen, editModalOpen]);
+					setMessage(
+						'Error deleting user alert: ' +
+							' ' +
+							axiosError.response?.status +
+							' ' +
+							axiosError.response?.statusText
+					);
+				}
+
+				// show custom snackbar error
+				setSeverity('error');
+				setSnackOpen(true);
+			},
+		}
+	);
+
+	const {
+		data: alerts,
+		error,
+		isLoading,
+	} = useQuery('fetchAlerts', async () => {
+		const { data }: { data: Alert[] } = await axios.get('/api/user/alerts');
+
+		return data;
+	});
+
+	const onDelete = async (id: string) => {
+		deleteMutation.mutate(id);
+	};
 
 	const handleEditModalOpen = (alert: Alert) => {
 		// trigger edit alert modal
@@ -111,8 +141,8 @@ const Alerts = () => {
 						}}
 					>
 						You may create a{' '}
-						<span style={{ fontWeight: 600 }}>maximum of 8 alerts</span>.{' '}
-						Delete old alerts to make room for new!
+						<span style={{ fontWeight: 600 }}>maximum of 8 alerts</span>. Delete
+						old alerts to make room for new!
 					</Typography>
 				</Box>
 				<Box
@@ -149,126 +179,146 @@ const Alerts = () => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{rows
-									.sort((a: Alert, b: Alert) =>
-										moment.utc(b.checkinDate).diff(moment.utc(a.checkinDate))
-									)
-									.map((row: Alert) => {
-										return (
-											<Tooltip
-												placement="top"
-												arrow
-												title={
-													moment.utc(row.checkoutDate).isBefore(moment.utc())
-														? 'Alert has expired'
-														: ''
-												}
-												key={row._id}
-											>
-												<TableRow
-													sx={{
-														backgroundColor: 'rgba(252, 247, 238, 0.85)',
-													}}
+								{isLoading ? (
+									<TableRow
+										sx={{
+											backgroundColor: 'rgba(252, 247, 238, 0.85)',
+										}}
+									>
+										<TableCell colSpan={6} align={'center'}>
+											<CircularProgress />
+										</TableCell>
+									</TableRow>
+								) : error ? (
+									<div>error fetching alerts</div>
+								) : alerts ? (
+									alerts
+										.sort((a: Alert, b: Alert) =>
+											moment.utc(b.checkinDate).diff(moment.utc(a.checkinDate))
+										)
+										.map((row: Alert) => {
+											return (
+												<Tooltip
+													placement="top"
+													arrow
+													title={
+														moment.utc(row.checkoutDate).isBefore(moment.utc())
+															? 'Alert has expired'
+															: ''
+													}
+													key={row._id}
 												>
-													<TableCell
+													<TableRow
 														sx={{
-															textTransform: 'capitalize',
-															...tableCellStyles,
-															...(moment
-																.utc(row.checkoutDate)
-																.isBefore(moment.utc())
-																? { color: '#757D67', fontWeight: 300 }
-																: { color: 'primary.main', fontWeight: 500 }),
+															backgroundColor: 'rgba(252, 247, 238, 0.85)',
 														}}
 													>
-														{row.entity.name}
-													</TableCell>
-													<TableCell
-														align="left"
-														sx={{
-															textTransform: 'capitalize',
-															...tableCellStyles,
-															...(moment
+														<TableCell
+															sx={{
+																textTransform: 'capitalize',
+																...tableCellStyles,
+																...(moment
+																	.utc(row.checkoutDate)
+																	.isBefore(moment.utc())
+																	? { color: '#757D67', fontWeight: 300 }
+																	: { color: 'primary.main', fontWeight: 500 }),
+															}}
+														>
+															{row.entity.name}
+														</TableCell>
+														<TableCell
+															align="left"
+															sx={{
+																textTransform: 'capitalize',
+																...tableCellStyles,
+																...(moment
+																	.utc(row.checkoutDate)
+																	.isBefore(moment.utc())
+																	? { color: '#757D67', fontWeight: 300 }
+																	: { color: 'primary.main', fontWeight: 500 }),
+															}}
+														>
+															{row.entity.type}
+														</TableCell>
+														<TableCell
+															align="left"
+															sx={{
+																...tableCellStyles,
+																...(moment
+																	.utc(row.checkoutDate)
+																	.isBefore(moment.utc())
+																	? { color: '#757D67', fontWeight: 300 }
+																	: { color: 'primary.main', fontWeight: 500 }),
+															}}
+														>
+															{moment.utc(row.checkinDate).format('MM/DD/YYYY')}
+														</TableCell>
+														<TableCell
+															align="left"
+															sx={{
+																...tableCellStyles,
+																...(moment
+																	.utc(row.checkoutDate)
+																	.isBefore(moment.utc())
+																	? { color: '#757D67', fontWeight: 300 }
+																	: { color: 'primary.main', fontWeight: 500 }),
+															}}
+														>
+															{moment
+																.utc(row.checkoutDate)
+																.format('MM/DD/YYYY')}
+														</TableCell>
+														<TableCell
+															align="left"
+															scope="row"
+															sx={{
+																...tableCellStyles,
+																...(moment
+																	.utc(row.checkoutDate)
+																	.isBefore(moment.utc())
+																	? { color: '#757D67', fontWeight: 300 }
+																	: { color: 'primary.main', fontWeight: 500 }),
+															}}
+														>
+															{moment
 																.utc(row.checkoutDate)
 																.isBefore(moment.utc())
-																? { color: '#757D67', fontWeight: 300 }
-																: { color: 'primary.main', fontWeight: 500 }),
-														}}
-													>
-														{row.entity.type}
-													</TableCell>
-													<TableCell
-														align="left"
-														sx={{
-															...tableCellStyles,
-															...(moment
-																.utc(row.checkoutDate)
-																.isBefore(moment.utc())
-																? { color: '#757D67', fontWeight: 300 }
-																: { color: 'primary.main', fontWeight: 500 }),
-														}}
-													>
-														{moment.utc(row.checkinDate).format('MM/DD/YYYY')}
-													</TableCell>
-													<TableCell
-														align="left"
-														sx={{
-															...tableCellStyles,
-															...(moment
-																.utc(row.checkoutDate)
-																.isBefore(moment.utc())
-																? { color: '#757D67', fontWeight: 300 }
-																: { color: 'primary.main', fontWeight: 500 }),
-														}}
-													>
-														{moment.utc(row.checkoutDate).format('MM/DD/YYYY')}
-													</TableCell>
-													<TableCell
-														align="left"
-														scope="row"
-														sx={{
-															...tableCellStyles,
-															...(moment
-																.utc(row.checkoutDate)
-																.isBefore(moment.utc())
-																? { color: '#757D67', fontWeight: 300 }
-																: { color: 'primary.main', fontWeight: 500 }),
-														}}
-													>
-														{moment.utc(row.checkoutDate).isBefore(moment.utc())
-															? 'Expired'
-															: row.enabled
-															? 'Active'
-															: 'Disabled'}
-													</TableCell>
-													<TableCell
-														align="left"
-														scope="row"
-														sx={tableCellStyles}
-													>
-														<Tooltip title="Edit alert" arrow>
-															<EditIcon
-																sx={{
-																	cursor: 'pointer',
-																	color: 'primary.main',
-																}}
-																onClick={() => handleEditModalOpen(row)}
-															/>
-														</Tooltip>
-														<Tooltip title="Delete alert" arrow>
-															<DeleteIcon
-																sx={{
-																	cursor: 'pointer',
-																	color: 'primary.main',
-																}}
-																onClick={() => handleDeleteModalOpen(row)}
-															/>
-														</Tooltip>
-													</TableCell>
-												</TableRow>
-											</Tooltip>
-										);
-									})}
+																? 'Expired'
+																: row.enabled
+																? 'Active'
+																: 'Disabled'}
+														</TableCell>
+														<TableCell
+															align="left"
+															scope="row"
+															sx={tableCellStyles}
+														>
+															<Tooltip title="Edit alert" arrow>
+																<EditIcon
+																	sx={{
+																		cursor: 'pointer',
+																		color: 'primary.main',
+																	}}
+																	onClick={() => handleEditModalOpen(row)}
+																/>
+															</Tooltip>
+															<Tooltip title="Delete alert" arrow>
+																<DeleteIcon
+																	sx={{
+																		cursor: 'pointer',
+																		color: 'primary.main',
+																	}}
+																	onClick={() => handleDeleteModalOpen(row)}
+																/>
+															</Tooltip>
+														</TableCell>
+													</TableRow>
+												</Tooltip>
+											);
+										})
+								) : (
+									<div>no alerts found</div>
+								)}
 							</TableBody>
 						</Table>
 					</TableContainer>
@@ -281,6 +331,7 @@ const Alerts = () => {
 					) : null}
 					{selectedAlert ? (
 						<DeleteAlertModal
+							onDelete={onDelete}
 							open={deleteModalOpen}
 							handleClose={handleDeleteModalClose}
 							alert={selectedAlert}
@@ -334,7 +385,7 @@ const Alerts = () => {
 						onClick={() => setEditUserSettingsOpen(true)}
 						sx={{ color: 'white' }}
 					>
-						<Box sx={{ textAlign: {xs: 'left', md: 'right'}  }}>
+						<Box sx={{ textAlign: { xs: 'left', md: 'right' } }}>
 							<span>change alert</span>
 							<br />
 							<span>frequency</span>

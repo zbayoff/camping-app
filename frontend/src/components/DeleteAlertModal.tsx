@@ -1,14 +1,9 @@
-import React, { useContext } from 'react';
-
-import axios, { AxiosError } from 'axios';
-
 import Box from '@mui/material/Box';
 
 import { Button, DialogActions, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { SnackbarContext } from '../contexts/snackbarContext';
 import { Alert } from './EditAlertModal';
 
 export type Entity = {
@@ -21,52 +16,15 @@ interface DeleteAlertModalProps {
 	alert: Alert;
 	handleClose: () => void;
 	open: boolean;
+	onDelete: (id: string) => void;
 }
 
 const DeleteAlertModal = ({
 	alert,
 	handleClose,
 	open,
+	onDelete,
 }: DeleteAlertModalProps) => {
-	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
-
-	const onSubmitHandler = async (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		event.preventDefault();
-
-		try {
-			await axios.delete(`/api/alert/${alert._id}`, {
-				withCredentials: true,
-			});
-			setSeverity('success');
-			setMessage('Success! Your alert has been deleted.');
-			setSnackOpen(true);
-
-			handleClose();
-		} catch (err) {
-			console.error('err deleting alert: ', err);
-			if (axios.isAxiosError(err)) {
-				const axiosError = err as AxiosError;
-
-				console.error('Axios error: ', axiosError.response);
-
-				setMessage(
-					'Error deleting user alert: ' +
-						' ' +
-						axiosError.response?.status +
-						' ' +
-						axiosError.response?.statusText
-				);
-			}
-
-			// show custom snackbar error
-			setSeverity('error');
-
-			setSnackOpen(true);
-		}
-	};
-
 	return (
 		<Dialog
 			PaperProps={{
@@ -121,7 +79,7 @@ const DeleteAlertModal = ({
 					<Button
 						sx={{ bgcolor: '#7B3620', color: 'white' }}
 						variant="contained"
-						onClick={onSubmitHandler}
+						onClick={() => onDelete(alert._id)}
 					>
 						Delete
 					</Button>

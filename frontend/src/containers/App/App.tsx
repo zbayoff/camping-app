@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { AuthProvider } from '../../contexts/authContext';
@@ -29,15 +30,20 @@ const theme = createTheme({
 	},
 });
 
+// Create a client
+const queryClient = new QueryClient();
+
 function App() {
 	return (
 		<AuthProvider>
-			<ThemeProvider theme={theme}>
-				<SnackbarProvider>
-					<Navigation />
-					<Routing />
-				</SnackbarProvider>
-			</ThemeProvider>
+			<QueryClientProvider client={queryClient}>
+				<ThemeProvider theme={theme}>
+					<SnackbarProvider>
+						<Navigation />
+						<Routing />
+					</SnackbarProvider>
+				</ThemeProvider>
+			</QueryClientProvider>
 		</AuthProvider>
 	);
 }

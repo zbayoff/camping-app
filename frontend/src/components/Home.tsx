@@ -190,7 +190,7 @@ const Home = () => {
 	};
 
 	const onBlurField = () => {
-		// setOpenSuggestions(false);
+		setOpenSuggestions(false);
 	};
 
 	const onFocusFieldFirstName = () => {
