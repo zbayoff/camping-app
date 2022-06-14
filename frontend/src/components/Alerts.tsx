@@ -80,6 +80,52 @@ const Alerts = () => {
 		}
 	);
 
+	const editMutation = useMutation(
+		(newAlert: Alert) => {
+			console.log('newAlert: ', newAlert);
+			return axios.put(
+				`/api/alert/${newAlert._id}`,
+				{
+					alert: newAlert,
+				},
+				{
+					withCredentials: true,
+				}
+			);
+		},
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries();
+
+				setEditModalOpen(false);
+				setSeverity('success');
+				setMessage('Success! Your alert has been updated.');
+				setSnackOpen(true);
+			},
+			onError: (err) => {
+				console.error('err updating alert: ', err);
+
+				if (axios.isAxiosError(err)) {
+					const axiosError = err as AxiosError;
+
+					console.error('Axios error: ', axiosError.response);
+
+					setMessage(
+						'Error updating user alert: ' +
+							' ' +
+							axiosError.response?.status +
+							' ' +
+							axiosError.response?.statusText
+					);
+				}
+
+				// show custom snackbar error
+				setSeverity('error');
+				setSnackOpen(true);
+			},
+		}
+	);
+
 	const {
 		data: alerts,
 		error,
@@ -92,6 +138,14 @@ const Alerts = () => {
 
 	const onDelete = async (id: string) => {
 		deleteMutation.mutate(id);
+	};
+
+	const onEdit = async (alert: Alert, enabled: boolean) => {
+		const newAlert: Alert = {
+			...alert,
+			enabled,
+		};
+		editMutation.mutate(newAlert);
 	};
 
 	const handleEditModalOpen = (alert: Alert) => {
@@ -190,7 +244,15 @@ const Alerts = () => {
 										</TableCell>
 									</TableRow>
 								) : error ? (
-									<div>error fetching alerts</div>
+									<TableRow
+										sx={{
+											backgroundColor: 'rgba(252, 247, 238, 0.85)',
+										}}
+									>
+										<TableCell colSpan={6} align={'center'}>
+											Error fetching alerts
+										</TableCell>
+									</TableRow>
 								) : alerts ? (
 									alerts
 										.sort((a: Alert, b: Alert) =>
@@ -324,6 +386,7 @@ const Alerts = () => {
 					</TableContainer>
 					{selectedAlert ? (
 						<EditAlertModal
+							onEdit={onEdit}
 							open={editModalOpen}
 							handleClose={handleEditModalClose}
 							alert={selectedAlert}

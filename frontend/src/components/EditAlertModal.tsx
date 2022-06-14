@@ -1,6 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
-
-import axios, { AxiosError } from 'axios';
+import React, { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 
@@ -11,8 +9,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Dialog from '@mui/material/Dialog';
 import EditIcon from '@mui/icons-material/Edit';
-
-import { SnackbarContext } from '../contexts/snackbarContext';
 
 export type Entity = {
 	id: Number;
@@ -26,74 +22,33 @@ export type Alert = {
 	entity: Entity;
 	checkinDate: Date;
 	checkoutDate: Date;
-	enabled: Boolean;
+	enabled: boolean;
 };
 
 interface EditAlertModalProps {
 	alert: Alert;
 	handleClose: () => void;
 	open: boolean;
+	onEdit: (alert: Alert, enabledValue: boolean) => void;
 }
 
-const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
-	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
+const EditAlertModal = ({
+	alert,
+	handleClose,
+	open,
+	onEdit,
+}: EditAlertModalProps) => {
 	const [enabledValue, setEnabledValue] = useState(alert.enabled);
 
 	useEffect(() => {
 		setEnabledValue(alert.enabled);
-	}, [alert.enabled]);
+	}, [open, alert.enabled]);
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.value === 'true') {
 			setEnabledValue(true);
 		} else {
 			setEnabledValue(false);
-		}
-	};
-
-	const onSubmitHandler = async (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		event.preventDefault();
-
-		const newObj = { ...alert, enabled: enabledValue };
-
-		try {
-			await axios.put(
-				`/api/alert/${alert._id}`,
-				{
-					alert: newObj,
-				},
-				{
-					withCredentials: true,
-				}
-			);
-
-			setSeverity('success');
-			setMessage('Success! Your alert has been updated.');
-			setSnackOpen(true);
-
-			handleClose();
-		} catch (err) {
-			console.error('err updating alert: ', err);
-
-			if (axios.isAxiosError(err)) {
-				const axiosError = err as AxiosError;
-
-				console.error('Axios error: ', axiosError.response);
-
-				setMessage(
-					'Error updating user alert: ' +
-						' ' +
-						axiosError.response?.status +
-						' ' +
-						axiosError.response?.statusText
-				);
-			}
-
-			// show custom snackbar error
-			setSeverity('error');
-			setSnackOpen(true);
 		}
 	};
 
@@ -203,7 +158,7 @@ const EditAlertModal = ({ alert, handleClose, open }: EditAlertModalProps) => {
 					<Button
 						sx={{ fontWeight: '700' }}
 						variant="contained"
-						onClick={onSubmitHandler}
+						onClick={() => onEdit(alert, enabledValue)}
 					>
 						Save
 					</Button>
