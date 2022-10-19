@@ -15,6 +15,7 @@ import {
 	getUsers,
 	addUser,
 } from '../controllers/index';
+import { fetchTrailEntryPoints } from '../helpers/recreationGovApi';
 const {
 	getAvailableCampsites,
 	getAvailablePermits,
@@ -127,6 +128,44 @@ router.post('/availablePermits', async (req, res) => {
 				message: err.message || 'Internal Server Error',
 			});
 		}
+
+		// next(err);
+	}
+});
+
+router.post('/fetchEntryPoints', async (req, res) => {
+	const { id } = req.body;
+
+	try {
+		if (id) {
+			const trailheads = await fetchTrailEntryPoints(id);
+			console.log('api: trailheads', trailheads)
+			res.json(trailheads);
+		} else {
+			throw new Error(
+				'errrorrrr'
+			);
+		}
+	} catch (err: any) {
+		console.log('err fetchTrailEntryPoints: ', err);
+
+		res.status(err.status || 500).send({
+			status: err.status || 500,
+			message: err.message || 'Internal Server Error',
+		});
+
+		// if (err?.response?.status === 404) {
+		// 	res.status(err?.response?.status || 500).send({
+		// 		status: err?.response?.status || 500,
+		// 		message:
+		// 			'Availabilities for this entity are currently not supported yet (permits for multi-entry trails). Check back again later.',
+		// 	});
+		// } else {
+			// res.status(err.status || 500).send({
+			// 	status: err.status || 500,
+			// 	message: err.message || 'Internal Server Error',
+			// });
+		// }
 
 		// next(err);
 	}

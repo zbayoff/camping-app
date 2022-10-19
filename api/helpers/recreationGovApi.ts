@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 
+import axios from 'axios';
 import Axios from 'axios';
 import moment from 'moment';
 
@@ -78,6 +79,8 @@ const getAvailableCampsites = async (
 ) => {
 	const format = 'YYYY-MM-DD';
 
+	console.log('getAvailableCampsites: ');
+
 	const start = moment(startDate);
 	const end = moment(endDate);
 
@@ -112,6 +115,8 @@ const getAvailableCampsites = async (
 	});
 
 	const allCampsites = await Promise.all(promises);
+
+	console.log(' allCampsites.flat(Infinity);: ', allCampsites.flat(Infinity));
 
 	return allCampsites.flat(Infinity);
 };
@@ -181,4 +186,60 @@ const getAvailablePermits = async (
 	return allPermits.flat(Infinity);
 };
 
-export { getAvailableCampsites, getAvailablePermits };
+interface RecGovAPIPermitContentResponse {
+	payload: {
+		divisions: {
+			[key: string]: {
+				type: 'Hiking Zone' | 'Entry Point';
+				name: string;
+				id: string;
+			};
+		};
+	};
+}
+
+// need to whitelist certain entity IDs, if part of Inyo forest, use different API for availability
+
+// input permit ID, return list of trailhead entry points, else return null;
+const fetchTrailEntryPoints = async (permit: string) => {
+	const permitContentApiUrl = `https://www.recreation.gov/api/permitcontent/${permit}`;
+
+	const { data }: { data: RecGovAPIPermitContentResponse } = await axios.get(
+		permitContentApiUrl
+	);
+
+	// loop through divisions
+
+	const { divisions } = data.payload;
+
+	// console.log('data.payload: ', data.payload);
+
+	const detailedEntries = Object.values(divisions)
+		.filter((division) => division.type === 'Entry Point')
+		.map((division) => {
+			// return list of entry points for the user to choose from
+			// console.log('division: ', division);
+			return {
+				name: division.name,
+				id: division.id,
+			};
+		});
+
+	return detailedEntries;
+
+
+};
+
+// fetchTrailEntryPoints(
+// 	'445857',
+// );
+
+// 233260 whitney
+// 72192 king range
+
+(async () => {
+	const entryPoints = await fetchTrailEntryPoints('233260');
+	console.log('entryPoints: ', entryPoints);
+})();
+
+export { getAvailableCampsites, getAvailablePermits, fetchTrailEntryPoints };

@@ -33,7 +33,8 @@
 	},
 	"scripts": {
 		"dev-client": "cd frontend && yarn start",
-		"dev-server": "nodemon ./api/webapp.ts",
+		"dev-server": "nodemon ./api/webapp.ts --config nodemon-server.json",
+		"dev-rec-gov-api": "PORT=6000 nodemon ./api/helpers/recreationGovApi.ts",
 		"webapp": "node ./dist/api/webapp.js",
 		"heroku-postbuild": "tsc & cd frontend/ && yarn install && yarn run build"
 	},

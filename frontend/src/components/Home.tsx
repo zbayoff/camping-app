@@ -34,6 +34,7 @@ import { SnackbarContext } from '../contexts/snackbarContext';
 
 import { TentIconPath } from './SVGIconPaths';
 import useLogin from '../hooks/useLogin';
+import { fetchTrailheads } from '../api/recGovApi';
 
 export type Site = {
 	loop: string;
@@ -62,6 +63,12 @@ export type Suggestion = {
 	text: string;
 	preview_image_url: string;
 	city: string;
+	trailheads?: Trailhead[];
+};
+
+export type Trailhead = {
+	name: string;
+	id: string;
 };
 
 const Home = () => {
@@ -84,6 +91,8 @@ const Home = () => {
 		DateRange<moment.Moment>
 	>([null, null]);
 
+	const [trailheadsPopoverOpen, setTrailheadsPopoverOpen] = useState(true);
+
 	const { user } = useContext(AuthContext);
 
 	const { setSnackOpen, setSeverity, setMessage } = useContext(SnackbarContext);
@@ -93,16 +102,42 @@ const Home = () => {
 	const { signIn } = useLogin();
 
 	// TODO: Add support for Permits from Rec API
-	const fetchCampgrounds = async (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
+	const fetchEntities = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.value) {
 			try {
 				const { data } = await axios.get(
 					`https://www.recreation.gov/api/search/suggest?q=${event.target.value}&geocoder=true&inventory_type=campground&inventory_type=permit`
 				);
 				if (data.inventory_suggestions && data.inventory_suggestions.length) {
-					setCampgroundSuggestions(data.inventory_suggestions);
+					console.log(
+						'data.inventory_suggestions: ',
+						data.inventory_suggestions
+					);
+
+					// loop through searched results and return suggestions object with trailheads if entity is type permit
+					const promises = data.inventory_suggestions.map(
+						async (suggestion: any) => {
+							if (suggestion.entity_type === 'permit') {
+								console.log('suggestion: ');
+								const trailheads = await fetchTrailheads(suggestion.entity_id);
+
+								console.log('trailheads: ', trailheads);
+
+								return {
+									...suggestion,
+									trailheads,
+								};
+							} else {
+								return suggestion;
+							}
+						}
+					);
+
+					const results = await Promise.all(promises);
+
+					console.log('results: ', results);
+
+					setCampgroundSuggestions(results);
 				}
 			} catch (err) {
 				console.error('error fetching campgrounds: ', err);
@@ -140,7 +175,7 @@ const Home = () => {
 		delayedQuery(event);
 	};
 
-	const delayedQuery = useMemo(() => _.debounce(fetchCampgrounds, 500), []); // eslint-disable-line react-hooks/exhaustive-deps
+	const delayedQuery = useMemo(() => _.debounce(fetchEntities, 500), []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -190,7 +225,7 @@ const Home = () => {
 	};
 
 	const onBlurField = () => {
-		setOpenSuggestions(false);
+		// setOpenSuggestions(false);
 	};
 
 	const onFocusFieldFirstName = () => {
@@ -254,6 +289,29 @@ const Home = () => {
 			opacity: 1,
 		},
 	} as const;
+
+	interface TrailheadPopoverProps {
+		trailheads: Trailhead[];
+	}
+
+	const TrailheadPopover = ({ trailheads }: TrailheadPopoverProps) => {
+		return (
+			<Box
+			sx={{
+				position: 'absolute',
+				display: 'flex',
+				alignItems: 'center',
+				flexDirection: 'column',
+				// backgroundColor: 'rgba(252, 247, 238, 0.85)',
+				borderRadius: '15px',
+			}}
+			>
+				{trailheads.map((trailhead) => {
+					return <div key={trailhead.id}>{trailhead.name}</div>;
+				})}
+			</Box>
+		);
+	};
 
 	return (
 		<div className="Home">
@@ -350,6 +408,8 @@ const Home = () => {
 																<ListItem
 																	key={suggestion.entity_id}
 																	onMouseDown={(e) => e.preventDefault()} // to allow onClick to fire before onBlur
+																	// only allow onClick if entity is NOT permit
+																	// else open side popup with list of entry points
 																	onClick={() => {
 																		setCampgroundValue({
 																			displayName:
@@ -362,6 +422,7 @@ const Home = () => {
 																	}}
 																	sx={{
 																		cursor: 'pointer',
+																		position: 'relative',
 																		height: '100%',
 																		paddingTop: '10px',
 																		paddingBottom: '10px',
@@ -375,6 +436,19 @@ const Home = () => {
 																		':hover .tent-icon': {
 																			color: 'primary.main',
 																		},
+																	}}
+																	onMouseEnter={() => {
+																		// check if suggestion has trailheads
+																		console.log(
+																			'suggestion.trailheads',
+																			suggestion?.trailheads
+																		);
+																		if (suggestion?.trailheads) {
+																			setTrailheadsPopoverOpen(true);
+																		}
+																	}}
+																	onMouseLeave={() => {
+																		// setTrailheadsPopoverOpen(false);
 																	}}
 																>
 																	<ListItemAvatar>
@@ -438,7 +512,11 @@ const Home = () => {
 																				<Link
 																					target="_blank"
 																					rel="noreferrer"
-																					href={`https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`}
+																					href={
+																						suggestion.entity_type === 'permit'
+																							? `https://www.recreation.gov/permit/${suggestion.entity_id}`
+																							: `https://www.recreation.gov/camping/campgrounds/${suggestion.entity_id}`
+																					}
 																					sx={{
 																						display: 'flex',
 																						':hover': {
@@ -469,6 +547,12 @@ const Home = () => {
 																				</Link>
 																			</Box>
 																		</Box>
+																	) : null}
+																	{trailheadsPopoverOpen &&
+																	suggestion.trailheads ? (
+																		<TrailheadPopover
+																			trailheads={suggestion.trailheads}
+																		/>
 																	) : null}
 																</ListItem>
 															);
