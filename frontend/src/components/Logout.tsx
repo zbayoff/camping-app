@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import axios from 'axios';
-import { GoogleLogout } from 'react-google-login';
 import { useHistory } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
@@ -8,6 +7,7 @@ import { AuthContext } from '../contexts/authContext';
 import { SxProps } from '@mui/system';
 
 import Box from '@mui/material/Box';
+import { googleLogout } from '@react-oauth/google';
 
 interface LogoutProps {
 	sx?: SxProps;
@@ -17,11 +17,11 @@ const Logout = ({ sx }: LogoutProps) => {
 	const history = useHistory();
 	const { setUser } = useContext(AuthContext);
 
-	const onLogoutSuccessHandler = async () => {
+	const onLogoutHandler = async () => {
+		googleLogout();
 		history.replace('/');
 
-		const res = await axios.delete('/auth/google');
-		console.log('res: ', res);
+		await axios.delete('/auth/google');
 
 		// save user data and jwt in localStorage
 		localStorage.removeItem('user');
@@ -33,36 +33,20 @@ const Logout = ({ sx }: LogoutProps) => {
 		window.location.reload();
 	};
 
-	const onFailureHandler = () => {
-		console.log('failed: ');
-	};
-
 	return (
-		<GoogleLogout
-			clientId={
-				process.env.REACT_APP_GOOGLE_CLIENT_ID
-					? process.env.REACT_APP_GOOGLE_CLIENT_ID
-					: ''
-			}
-			buttonText="Logout"
-			onLogoutSuccess={onLogoutSuccessHandler}
-			onFailure={onFailureHandler}
-			render={(renderProps) => (
-				<Box
-					sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-					onClick={renderProps.onClick}
-				>
-					<Box
-						sx={sx}
-						style={{
-							display: 'inline',
-						}}
-					>
-						Logout
-					</Box>
-				</Box>
-			)}
-		/>
+		<Box
+			sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+			onClick={onLogoutHandler}
+		>
+			<Box
+				sx={sx}
+				style={{
+					display: 'inline',
+				}}
+			>
+				Logout
+			</Box>
+		</Box>
 	);
 };
 

@@ -16,15 +16,15 @@ const Login = () => {
 	const history = useHistory();
 	const { user } = useContext(AuthContext);
 
-	const { signIn } = useLogin();
+	const { login } = useLogin();
 
 	useEffect(() => {
 		if (user) {
 			history.replace('/');
 		} else {
-			signIn();
+			login();
 		}
-	}, [user, signIn, history]);
+	}, [user, login, history]);
 
 	return (
 		<div>

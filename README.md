@@ -6,3 +6,6 @@ Frontend
 
 Backend
 `yarn dev` 
+
+Database Locally:
+`brew services start mongodb-community`

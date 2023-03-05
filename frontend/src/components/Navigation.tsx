@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import Logout from './Logout';
 import { NavLink, Link } from 'react-router-dom';
 
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,12 +17,13 @@ import Container from '@mui/material/Container';
 import { SxProps } from '@mui/system';
 import useLogin from '../hooks/useLogin';
 import { GoogleIconPath } from './SVGIconPaths';
+import Logout from './Logout';
 
 const Navigation = () => {
 	const { user } = useContext(AuthContext);
 	const { pathname } = useLocation();
 
-	const { signIn } = useLogin();
+	const { login } = useLogin();
 
 	const [anchorElNav, setAnchorElNav] = useState<Element | null>(null);
 
@@ -218,7 +218,7 @@ const Navigation = () => {
 								<Avatar alt={user.firstName} src={user.picture} />
 							</div>
 						) : (
-							<Button onClick={() => signIn()}>
+							<Button onClick={() => login()}>
 								<Typography
 									sx={{
 										fontWeight: 600,

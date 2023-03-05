@@ -90,7 +90,7 @@ const Home = () => {
 
 	const inputEl = useRef(null);
 
-	const { signIn } = useLogin();
+	const { login } = useLogin();
 
 	// TODO: Add support for Permits from Rec API
 	const fetchCampgrounds = async (
@@ -751,7 +751,7 @@ const Home = () => {
 											</Button>
 										) : (
 											<Button
-												onClick={() => signIn()}
+												onClick={() => login()}
 												variant="contained"
 												sx={{
 													color: 'rgba(252, 247, 238, 0.85)',
@@ -831,7 +831,7 @@ const Home = () => {
 							</>
 						) : (
 							<Button
-								onClick={() => signIn()}
+								onClick={() => login()}
 								variant="contained"
 								sx={{
 									color: 'rgba(252, 247, 238, 0.85)',

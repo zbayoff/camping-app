@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { AuthProvider } from '../../contexts/authContext';
@@ -33,17 +34,23 @@ const theme = createTheme({
 // Create a client
 const queryClient = new QueryClient();
 
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
+	? process.env.REACT_APP_GOOGLE_CLIENT_ID
+	: '';
+
 function App() {
 	return (
 		<AuthProvider>
-			<QueryClientProvider client={queryClient}>
-				<ThemeProvider theme={theme}>
-					<SnackbarProvider>
-						<Navigation />
-						<Routing />
-					</SnackbarProvider>
-				</ThemeProvider>
-			</QueryClientProvider>
+			<GoogleOAuthProvider clientId={clientId}>
+				<QueryClientProvider client={queryClient}>
+					<ThemeProvider theme={theme}>
+						<SnackbarProvider>
+							<Navigation />
+							<Routing />
+						</SnackbarProvider>
+					</ThemeProvider>
+				</QueryClientProvider>
+			</GoogleOAuthProvider>
 		</AuthProvider>
 	);
 }

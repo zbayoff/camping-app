@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import axios from 'axios';
 
-import { useGoogleLogin } from 'react-google-login';
+// import { useGoogleLogin }s from 'react-google-login';
 import { useHistory, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/authContext';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export interface LocationState {
 	from: {
@@ -18,7 +19,7 @@ const useLogin = () => {
 
 	const onSuccessHandler = async (response: any) => {
 		const { data } = await axios.post('/auth/google', {
-			token: response.tokenId,
+			code: response.code,
 		});
 
 		localStorage.setItem('user', JSON.stringify(data.user));
@@ -40,18 +41,15 @@ const useLogin = () => {
 		history.replace('/');
 	};
 
-	const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-		? process.env.REACT_APP_GOOGLE_CLIENT_ID
-		: '';
-
-	const { signIn } = useGoogleLogin({
-		clientId: clientId,
+	const login = useGoogleLogin({
 		onSuccess: onSuccessHandler,
-		onFailure: onFailureHandler,
-		cookiePolicy: 'single_host_origin',
+		onError: onFailureHandler,
+		flow: 'auth-code',
 	});
 
-	return { signIn };
+	return {
+		login,
+	};
 };
 
 export default useLogin;
