@@ -1,11 +1,10 @@
 ## Development
 
 Frontend
-`cd frontend`
-`yarn start`
+`yarn dev-client`
 
 Backend
-`yarn dev` 
+`yarn dev-server` 
 
 Database Locally:
 `brew services start mongodb-community`

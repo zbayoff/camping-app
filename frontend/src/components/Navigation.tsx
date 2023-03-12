@@ -56,7 +56,7 @@ const Navigation = () => {
 			className={`Navbar ${scroll ? 'scrolled' : ''} ${
 				pathname === '/' ? 'home' : ''
 			}`}
-			position="static"
+			position="absolute"
 		>
 			<Container maxWidth="xl">
 				<Toolbar disableGutters>
@@ -132,6 +132,16 @@ const Navigation = () => {
 									<MenuItem
 										onClick={handleCloseNavMenu}
 										component={NavLink}
+										to="/donate"
+										activeClassName="active-nav"
+									>
+										<Typography sx={mobileNavItemStyle} textAlign="center">
+											Donate
+										</Typography>
+									</MenuItem>
+									<MenuItem
+										onClick={handleCloseNavMenu}
+										component={NavLink}
 										to="/"
 										activeClassName="active-nav"
 									>
@@ -159,7 +169,7 @@ const Navigation = () => {
 									onClick={handleCloseNavMenu}
 									sx={{
 										mr: 2,
-										color: pathname === '/' ? 'white' : 'primary.main',
+										color: 'white',
 										fontWeight: 500,
 										fontSize: '18px',
 									}}
@@ -170,7 +180,7 @@ const Navigation = () => {
 									sx={{
 										alignSelf: 'center',
 										borderRight: `2px solid`,
-										borderColor: pathname === '/' ? 'white' : 'primary.main',
+										borderColor: 'white',
 										flex: '0 0 0px !important',
 										height: '31px',
 										marginRight: '1rem',
@@ -182,7 +192,7 @@ const Navigation = () => {
 									onClick={handleCloseNavMenu}
 									sx={{
 										mr: 2,
-										color: pathname === '/' ? 'white' : 'primary.main',
+										color: 'white',
 										fontWeight: 500,
 										fontSize: '18px',
 									}}
@@ -193,7 +203,30 @@ const Navigation = () => {
 									sx={{
 										alignSelf: 'center',
 										borderRight: `2px solid`,
-										borderColor: pathname === '/' ? 'white' : 'primary.main',
+										borderColor: 'white',
+										flex: '0 0 0px !important',
+										height: '31px',
+										marginRight: '1rem',
+									}}
+								></Box>
+								<Button
+									to="/donate"
+									component={NavLink}
+									onClick={handleCloseNavMenu}
+									sx={{
+										mr: 2,
+										color: 'white',
+										fontWeight: 500,
+										fontSize: '18px',
+									}}
+								>
+									Donate
+								</Button>
+								<Box
+									sx={{
+										alignSelf: 'center',
+										borderRight: `2px solid`,
+										borderColor: 'white',
 										flex: '0 0 0px !important',
 										height: '31px',
 										marginRight: '1rem',
@@ -203,7 +236,7 @@ const Navigation = () => {
 									sx={{
 										mr: 2,
 										textTransform: 'uppercase',
-										color: pathname === '/' ? 'white' : 'primary.main',
+										color: 'white',
 										fontWeight: 500,
 										fontSize: '18px',
 										letterSpacing: '0.1rem',
@@ -218,43 +251,74 @@ const Navigation = () => {
 								<Avatar alt={user.firstName} src={user.picture} />
 							</div>
 						) : (
-							<Button onClick={() => login()}>
-								<Typography
+							<Box
+								sx={{
+									flexGrow: 1,
+									display: { xs: 'none', md: 'flex' },
+									justifyContent: 'flex-end',
+								}}
+							>
+								<Button
+									to="/donate"
+									component={NavLink}
+									onClick={handleCloseNavMenu}
 									sx={{
-										fontWeight: 600,
-										textTransform: 'uppercase',
-										fontSize: '18px',
-										letterSpacing: '0.1rem',
+										mr: 2,
 										color: 'white',
-										marginRight: '1rem',
+										fontWeight: 500,
+										fontSize: '18px',
 									}}
 								>
-									Sign In
-								</Typography>
+									Donate
+								</Button>
 								<Box
 									sx={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
+										alignSelf: 'center',
+										borderRight: `2px solid`,
+										borderColor: 'white',
+										flex: '0 0 0px !important',
+										height: '31px',
+										marginRight: '1rem',
 									}}
-								>
-									<SvgIcon
+								></Box>
+								<Button onClick={() => login()}>
+									<Typography
+										sx={{
+											fontWeight: 600,
+											textTransform: 'uppercase',
+											fontSize: '18px',
+											letterSpacing: '0.1rem',
+											color: 'white',
+											marginRight: '1rem',
+										}}
+									>
+										Sign In
+									</Typography>
+									<Box
 										sx={{
 											display: 'flex',
 											justifyContent: 'center',
 											alignItems: 'center',
-											width: '47px',
-											height: '47px',
-											backgroundColor: 'white',
-											borderRadius: '50%',
-											padding: '8px',
 										}}
-										viewBox="0 0 18 18"
 									>
-										<GoogleIconPath />
-									</SvgIcon>
-								</Box>
-							</Button>
+										<SvgIcon
+											sx={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												width: '47px',
+												height: '47px',
+												backgroundColor: 'white',
+												borderRadius: '50%',
+												padding: '8px',
+											}}
+											viewBox="0 0 18 18"
+										>
+											<GoogleIconPath />
+										</SvgIcon>
+									</Box>
+								</Button>
+							</Box>
 						)}
 					</Box>
 				</Toolbar>
