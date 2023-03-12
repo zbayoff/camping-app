@@ -18,16 +18,36 @@ const theme = createTheme({
 		secondary: {
 			main: '#757D67',
 		},
-	},
-	components: {
-		MuiButton: {
-			styleOverrides: {
-				root: {
-					letterSpacing: '.1rem',
-					borderRadius: '15px',
-				},
-			},
+		cream: {
+			main: '#FCF7EE',
 		},
+		brown: {
+			main: '#693B06',
+		},
+		yellow: {
+			main: '#E58B31',
+		},
+		green: {
+			main: '#5F5F08',
+		},
+		teal: {
+			main: '#174C49',
+		},
+		greyBlue: {
+			main: '#788186',
+		},
+		greyBlue2: {
+			main: '#4A5860',
+		},
+		venmoBlue: {
+			main: '#008CFF',
+		},
+		payPalBlue: {
+			main: '#00457C',
+		},
+	},
+	typography: {
+		fontFamily: ['Karla'].join(','),
 	},
 });
 

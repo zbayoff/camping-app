@@ -1,0 +1,140 @@
+/* karla-regular - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: normal;
+	font-weight: 400;
+	src: url('./fonts/karla-v23-latin-regular.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-regular.eot?#iefix')
+			format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-regular.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-regular.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-regular.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-regular.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+/* karla-italic - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: italic;
+	font-weight: 400;
+	src: url('./fonts/karla-v23-latin-italic.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-italic.eot?#iefix')
+			format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-italic.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-italic.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-italic.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-italic.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+/* karla-500 - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: normal;
+	font-weight: 500;
+	src: url('./fonts/karla-v23-latin-500.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-500.eot?#iefix') format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-500.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-500.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-500.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-500.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+/* karla-600 - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: normal;
+	font-weight: 600;
+	src: url('./fonts/karla-v23-latin-600.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-600.eot?#iefix') format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-600.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-600.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-600.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-600.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+/* karla-700 - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: normal;
+	font-weight: 700;
+	src: url('./fonts/karla-v23-latin-700.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-700.eot?#iefix') format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-700.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-700.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-700.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-700.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+/* karla-800 - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Karla';
+	font-style: normal;
+	font-weight: 800;
+	src: url('./fonts/karla-v23-latin-800.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/karla-v23-latin-800.eot?#iefix') format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/karla-v23-latin-800.woff2') format('woff2'),
+		/* Super Modern Browsers */ url('./fonts/karla-v23-latin-800.woff')
+			format('woff'),
+		/* Modern Browsers */ url('./fonts/karla-v23-latin-800.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */ url('./fonts/karla-v23-latin-800.svg#Karla')
+			format('svg'); /* Legacy iOS */
+}
+
+/* karla-800italic - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Karla';
+    font-style: italic;
+    font-weight: 800;
+    src: url('./fonts/karla-v23-latin-800italic.eot'); /* IE9 Compat Modes */
+    src: url('./fonts/karla-v23-latin-800italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('./fonts/karla-v23-latin-800italic.woff2') format('woff2'), /* Super Modern Browsers */
+         url('./fonts/karla-v23-latin-800italic.woff') format('woff'), /* Modern Browsers */
+         url('./fonts/karla-v23-latin-800italic.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('./fonts/karla-v23-latin-800italic.svg#Karla') format('svg'); /* Legacy iOS */
+  }
+
+/* passion-one-regular - latin */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Passion One';
+	font-style: normal;
+	font-weight: 400;
+	src: url('./fonts/passion-one-v16-latin-regular.eot'); /* IE9 Compat Modes */
+	src: url('./fonts/passion-one-v16-latin-regular.eot?#iefix')
+			format('embedded-opentype'),
+		/* IE6-IE8 */ url('./fonts/passion-one-v16-latin-regular.woff2')
+			format('woff2'),
+		/* Super Modern Browsers */
+			url('./fonts/passion-one-v16-latin-regular.woff') format('woff'),
+		/* Modern Browsers */ url('./fonts/passion-one-v16-latin-regular.ttf')
+			format('truetype'),
+		/* Safari, Android, iOS */
+			url('./fonts/passion-one-v16-latin-regular.svg#PassionOne') format('svg'); /* Legacy iOS */
+}
+
+/* North Pole -regular */
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'North Pole';
+	font-style: normal;
+	font-weight: 400;
+	src: url('./fonts/North-Pole-Regular.otf');
+}
