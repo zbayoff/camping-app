@@ -75,81 +75,79 @@ const Navigation = () => {
 
 					{/* Mobile nav */}
 					<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-						{user ? (
-							<>
-								<IconButton
-									size="large"
-									aria-label="account of current user"
-									aria-controls="menu-appbar"
-									aria-haspopup="true"
-									onClick={handleOpenNavMenu}
-									color="primary"
+						<IconButton
+							size="large"
+							aria-label="account of current user"
+							aria-controls="menu-appbar"
+							aria-haspopup="true"
+							onClick={handleOpenNavMenu}
+							color="primary"
+						>
+							<MenuIcon sx={{ color: 'rgba(252, 247, 238, 0.85)' }} />
+						</IconButton>
+						<Menu
+							id="menu-appbar"
+							anchorEl={anchorElNav}
+							anchorOrigin={{
+								vertical: 'bottom',
+								horizontal: 'left',
+							}}
+							keepMounted
+							transformOrigin={{
+								vertical: 'top',
+								horizontal: 'left',
+							}}
+							open={Boolean(anchorElNav)}
+							onClose={handleCloseNavMenu}
+							sx={{
+								display: { xs: 'block', md: 'none' },
+								borderRadius: '15px',
+							}}
+							PaperProps={{
+								style: { borderRadius: '15px' },
+							}}
+						>
+							<MenuItem
+								onClick={handleCloseNavMenu}
+								component={NavLink}
+								to="/"
+								activeClassName="active-nav"
+							>
+								<Typography sx={mobileNavItemStyle} textAlign="center">
+									Search
+								</Typography>
+							</MenuItem>
+							<MenuItem
+								onClick={handleCloseNavMenu}
+								component={NavLink}
+								to="/alerts"
+								activeClassName="active-nav"
+							>
+								<Typography sx={mobileNavItemStyle} textAlign="center">
+									Alerts
+								</Typography>
+							</MenuItem>
+							<MenuItem
+								onClick={handleCloseNavMenu}
+								component={NavLink}
+								to="/donate"
+								activeClassName="active-nav"
+							>
+								<Typography sx={mobileNavItemStyle} textAlign="center">
+									Donate
+								</Typography>
+							</MenuItem>
+							{user ? (
+								<MenuItem
+									onClick={handleCloseNavMenu}
+									component={NavLink}
+									to="/"
+									activeClassName="active-nav"
 								>
-									<MenuIcon sx={{ color: 'rgba(252, 247, 238, 0.85)' }} />
-								</IconButton>
-								<Menu
-									id="menu-appbar"
-									anchorEl={anchorElNav}
-									anchorOrigin={{
-										vertical: 'bottom',
-										horizontal: 'left',
-									}}
-									keepMounted
-									transformOrigin={{
-										vertical: 'top',
-										horizontal: 'left',
-									}}
-									open={Boolean(anchorElNav)}
-									onClose={handleCloseNavMenu}
-									sx={{
-										display: { xs: 'block', md: 'none' },
-										borderRadius: '15px',
-									}}
-									PaperProps={{
-										style: { borderRadius: '15px' },
-									}}
-								>
-									<MenuItem
-										onClick={handleCloseNavMenu}
-										component={NavLink}
-										to="/"
-										activeClassName="active-nav"
-									>
-										<Typography sx={mobileNavItemStyle} textAlign="center">
-											Search
-										</Typography>
-									</MenuItem>
-									<MenuItem
-										onClick={handleCloseNavMenu}
-										component={NavLink}
-										to="/alerts"
-										activeClassName="active-nav"
-									>
-										<Typography sx={mobileNavItemStyle} textAlign="center">
-											Alerts
-										</Typography>
-									</MenuItem>
-									<MenuItem
-										onClick={handleCloseNavMenu}
-										component={NavLink}
-										to="/donate"
-										activeClassName="active-nav"
-									>
-										<Typography sx={mobileNavItemStyle} textAlign="center">
-											Donate
-										</Typography>
-									</MenuItem>
-									<MenuItem
-										onClick={handleCloseNavMenu}
-										component={NavLink}
-										to="/"
-										activeClassName="active-nav"
-									>
-										{user ? <Logout sx={mobileNavItemStyle} /> : null}
-									</MenuItem>
-								</Menu>
-							</>
-						) : null}
+									<Logout sx={mobileNavItemStyle} />
+								</MenuItem>
+							) : null}
+						</Menu>
 					</Box>
 
 					{/* Desktop Nav */}
