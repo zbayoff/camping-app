@@ -4,7 +4,7 @@
 	"private": true,
 	"engines": {
 		"node": "16.x",
-		"yarn": "3.6.x"
+		"yarn": "3.4.0"
 	},
 	"dependencies": {
 		"@datadog/browser-rum": "^4.9.0",
