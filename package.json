@@ -55,5 +55,6 @@
 		"serverless-plugin-datadog": "^5.0.1",
 		"serverless-plugin-typescript": "^2.1.2",
 		"ts-node": "^10.7.0"
-	}
+	},
+	"packageManager": "yarn@3.6.0"
 }
