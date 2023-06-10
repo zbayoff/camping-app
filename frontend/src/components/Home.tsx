@@ -47,10 +47,10 @@ export type CampgroundAvailability = {
 };
 
 export type PermitAvailability = {
-	total: Number;
-	remaining: Number;
-	show_walkup: Boolean;
-	is_secret_quota: Boolean;
+	total: number;
+	remaining: number;
+	show_walkup: boolean;
+	is_secret_quota: boolean;
 	date: Date;
 };
 
@@ -494,11 +494,11 @@ const Home = () => {
 										disablePast
 										calendars={1}
 										value={checkInOutDates}
-										onChange={(newValue) => {
+										onChange={(newValue: any) => {
 											setCheckInOutDates(newValue);
 											setOpenAvailabilities(false);
 										}}
-										renderInput={(startProps, endProps) => (
+										renderInput={(startProps: any, endProps: any) => (
 											<React.Fragment>
 												<Box
 													sx={{

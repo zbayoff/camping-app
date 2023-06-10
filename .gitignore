@@ -1,9 +1,11 @@
 node_modules
 frontend/node_modules
 frontend/build
+frontend/.yarn
 .DS_Store
 .env
 .serverless
 todo.txt
 dist
 .build
+.yarn

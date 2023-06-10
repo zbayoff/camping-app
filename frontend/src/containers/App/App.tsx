@@ -54,9 +54,7 @@ const theme = createTheme({
 // Create a client
 const queryClient = new QueryClient();
 
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-	? process.env.REACT_APP_GOOGLE_CLIENT_ID
-	: '';
+const clientId = '233067414245-0hpekfkkun5t3u3gt64ab2pnqmfjr9tk.apps.googleusercontent.com'
 
 function App() {
 	return (
